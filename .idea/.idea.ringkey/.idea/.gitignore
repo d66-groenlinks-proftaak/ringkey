@@ -1,0 +1,13 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/projectSettingsUpdater.xml
+/contentModel.xml
+/modules.xml
+/.idea.ringkey.iml
+# Datasource local storage ignored files
+/../../../../../../../../../../:\Users\Kane\OneDrive - Office 365 Fontys\Software\Semester 2\ringkey\.idea\.idea.ringkey\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
