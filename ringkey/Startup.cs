@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using RethinkDb.Driver.Model;
 using ringkey.Data;
 using ringkey.Logic;
+using ringkey.Logic.Hubs;
 
 namespace ringkey
 {
@@ -30,12 +31,12 @@ namespace ringkey
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "ringkey", Version = "v1"}); });
 
             services.AddScoped<UnitOfWork>();
+            services.AddScoped<MessageService>();
             
-            services.AddHostedService<TestService>();
             services.AddHostedService<ChangeFeed>();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,8 +45,6 @@ namespace ringkey
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ringkey v1"));
             }
 
             app.UseHttpsRedirection();
@@ -54,7 +53,19 @@ namespace ringkey
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyHeader();
+                builder.AllowAnyMethod(); // Test
+                builder.SetIsOriginAllowed(_ => true);
+                builder.AllowCredentials();
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<MessageHub>("/hub/message");
+            });
         }
     }
 }
