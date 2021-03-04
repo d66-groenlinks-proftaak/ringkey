@@ -55,10 +55,10 @@ namespace ringkey
 
             app.UseCors(builder =>
             {
-                builder.AllowAnyHeader();
-                builder.AllowAnyMethod();
-                builder.SetIsOriginAllowed(_ => true); // Testing
-                builder.AllowCredentials();
+                builder.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithOrigins("http://localhost:3000")
+                    .AllowCredentials();
             });
 
             app.UseEndpoints(endpoints =>
