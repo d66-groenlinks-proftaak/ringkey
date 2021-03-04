@@ -56,8 +56,8 @@ namespace ringkey
             app.UseCors(builder =>
             {
                 builder.AllowAnyHeader();
-                builder.AllowAnyMethod(); // Test
-                builder.SetIsOriginAllowed(_ => true);
+                builder.AllowAnyMethod();
+                builder.SetIsOriginAllowed(_ => true); // Testing
                 builder.AllowCredentials();
             });
 
