@@ -1,46 +1,49 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ringkey.Common.Models;
 using ringkey.Data;
+using ringkey.Logic.Hubs;
 
 namespace ringkey.Logic
 {
-    public class ChangeFeed : IHostedService
+    public class ChangeFeed : BackgroundService
     {
         private UnitOfWork _unitOfWork;
         private readonly IServiceScopeFactory _factory;
         private Timer _timer;
         
-        public ChangeFeed(IServiceScopeFactory factory)
+        private readonly IHubContext<MessageHub, IMessageClient> _messageHub;
+        public ChangeFeed(IServiceScopeFactory factory, IHubContext<MessageHub, IMessageClient> messageHub)
         {
             _factory = factory;
+            _messageHub = messageHub;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             using (IServiceScope scope = _factory.CreateScope())
             {
                 _unitOfWork = scope.ServiceProvider.GetRequiredService<UnitOfWork>();
             }
             
-            var cursor = await _unitOfWork.Account.AccountChange();
+            var cursor = await _unitOfWork.Message.MessageChange();
 
             while (await cursor.MoveNextAsync())
             {
-                if (cursor.Current != null)
+                if (cursor.Current != null && cursor.Current.OldValue == null)
                 {
-                    Console.WriteLine($"Update: {cursor.Current.NewValue.id}; credits: {cursor.Current.NewValue.Credits}");
+                    Console.WriteLine("Testing!");
+                    await _messageHub.Clients.All.SendMessage(cursor.Current.NewValue);
                 }
             }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _timer.Change(Timeout.Infinite, 0);
-            
             return Task.CompletedTask;
         }
 
