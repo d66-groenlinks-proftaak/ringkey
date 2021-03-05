@@ -34,5 +34,9 @@ namespace ringkey.Data.Accounts
         {
             return await RethinkDB.R.Db("ringkey").Table(nameof(Account).Split(".")[^1]).Changes().RunChangesAsync<Account>(_connection);
         }
+
+        public AccountRepository(Connection connection) : base(connection)
+        {
+        }
     }
 }

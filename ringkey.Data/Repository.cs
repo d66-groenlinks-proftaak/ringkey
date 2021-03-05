@@ -12,23 +12,9 @@ namespace ringkey.Data
     {
         protected Connection _connection;
         
-        public Repository()
+        public Repository(Connection connection)
         {
-            _connection = RethinkDB.R
-                .Connection()
-                .Hostname("127.0.0.1")
-                .Port(28015)
-                .Timeout(60)
-                .Connect();
-
-            if (!RethinkDB.R.DbList().Contains("ringkey").Run(_connection))
-            {
-                RethinkDB.R.DbCreate("ringkey").Run(_connection);
-                RethinkDB.R.Db("ringkey").TableCreate("Account").Run(_connection);
-                RethinkDB.R.Db("ringkey").TableCreate("Role").Run(_connection);
-                RethinkDB.R.Db("ringkey").TableCreate("Permission").Run(_connection);
-                RethinkDB.R.Db("ringkey").TableCreate("Message").Run(_connection);
-            }
+            _connection = connection;
         }
         
         public TEntity Get(string id)

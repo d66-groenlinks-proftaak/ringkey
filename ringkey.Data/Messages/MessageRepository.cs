@@ -24,5 +24,9 @@ namespace ringkey.Data.Messages
         {
             return RethinkDB.R.Db("ringkey").Table("Message").OrderBy(RethinkDB.R.Desc("Created")).Limit(10).Run<List<Message>>(_connection);
         }
+
+        public MessageRepository(Connection connection) : base(connection)
+        {
+        }
     }
 }
