@@ -17,7 +17,9 @@ namespace ringkey.Data.Messages
 
         public void Create(IMessage message)
         {
-            RethinkDB.R.Db("ringkey").Table("Message").Insert(message).Run(_connection);
+            _rethinkContext.AddCommand(() =>
+                RethinkDB.R.Db("ringkey").Table("Message").Insert(message).RunAsync(_connection)
+            );
         }
 
         public List<Message> GetLatest(int amount)
@@ -25,7 +27,7 @@ namespace ringkey.Data.Messages
             return RethinkDB.R.Db("ringkey").Table("Message").OrderBy(RethinkDB.R.Desc("Created")).Limit(10).Run<List<Message>>(_connection);
         }
 
-        public MessageRepository(Connection connection) : base(connection)
+        public MessageRepository(IRethinkContext rethinkContext) : base(rethinkContext)
         {
         }
     }

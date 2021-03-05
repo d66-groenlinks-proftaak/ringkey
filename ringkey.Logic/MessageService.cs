@@ -18,6 +18,7 @@ namespace ringkey.Logic
             message.Created = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             
             _unitOfWork.Message.Create(message);
+            _unitOfWork.SaveChanges();
             
             return true;
         }

@@ -20,15 +20,6 @@ namespace ringkey.Logic
             _factory = factory;
         }
 
-        private async void DoWork(object? state)
-        {
-            Account account = _unitOfWork.Account.Get("00d20e9a-4a73-4c74-af00-57ea97c8aaa9");
-            account.Credits = account.Credits + 1;
-            _unitOfWork.Account.Update(account);
-            
-            Console.WriteLine("Account updated!");
-        }
-
         public Task StartAsync(CancellationToken cancellationToken)
         {
             using (IServiceScope scope = _factory.CreateScope())

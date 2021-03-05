@@ -8,7 +8,5 @@ namespace ringkey.Data.Accounts
     public interface IAccountRepository : IRepository<Account>
     {
         Task<Cursor<Change<Account>>> AccountChange();
-        void GiveCredits(Account account, int amount);
-        void Update(Account account);
     }
 }

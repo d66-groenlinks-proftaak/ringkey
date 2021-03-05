@@ -11,10 +11,12 @@ namespace ringkey.Data
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         protected Connection _connection;
+        protected IRethinkContext _rethinkContext;
         
-        public Repository(Connection connection)
+        public Repository(IRethinkContext rethinkContext)
         {
-            _connection = connection;
+            _connection = rethinkContext.Connection;
+            _rethinkContext = rethinkContext;
         }
         
         public TEntity Get(string id)
@@ -36,12 +38,17 @@ namespace ringkey.Data
 
         public void Add(TEntity entity)
         {
-            RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entity).Run(_connection);
+            _rethinkContext.AddCommand(() =>
+                RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entity)
+                    .Run(_connection)
+            );
         }
 
         public void AddRange(IEnumerable<TEntity> entities)
         {
-            RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entities).Run(_connection);
+            _rethinkContext.AddCommand(() =>
+                RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entities).Run(_connection)
+            );
         }
     }
 }
