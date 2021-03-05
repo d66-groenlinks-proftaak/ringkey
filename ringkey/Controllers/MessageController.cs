@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ringkey.Common.Models.Messages;
@@ -14,13 +15,5 @@ namespace ringkey.Controllers
         {
             _messageService = messageService;
         }
-        
-        [HttpPost("/message/new")]
-        public async Task<IActionResult> CreateMessage([FromBody] NewMessage message)
-        {
-            _messageService.CreateMessage(message);
-            
-            return new OkResult();
-        } 
     }
 }

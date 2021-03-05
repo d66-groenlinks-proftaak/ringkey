@@ -2,53 +2,52 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using RethinkDb.Driver;
-using RethinkDb.Driver.Net;
-using RethinkDb.Driver.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ringkey.Data
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected Connection _connection;
-        protected IRethinkContext _rethinkContext;
+        protected readonly RingkeyDbContext _dbContext;
         
-        public Repository(IRethinkContext rethinkContext)
+        public Repository(RingkeyDbContext context)
         {
-            _connection = rethinkContext.Connection;
-            _rethinkContext = rethinkContext;
+            _dbContext = context;
         }
         
         public TEntity Get(string id)
         {
-            return RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Get(id).Run<TEntity>(_connection);
+            return _dbContext.Set<TEntity>().Find(id);
         }
 
         public IEnumerable<TEntity> GetAll()
         {
-            return RethinkDB.R.Db("ringkey").Run<TEntity>(_connection);
+            return _dbContext.Set<TEntity>().ToList();
         }
 
         public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> expression)
         {
-            return RethinkDB.R.Db("ringkey").Table<TEntity>(typeof(TEntity).Name.Split(".")[^1], _connection)
-                .Where(expression)
-                .ToList();
+            return _dbContext.Set<TEntity>().Where(expression);
         }
 
         public void Add(TEntity entity)
         {
-            _rethinkContext.AddCommand(() =>
-                RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entity)
-                    .RunAsync(_connection)
-            );
+            _dbContext.Set<TEntity>().Add(entity);
         }
 
         public void AddRange(IEnumerable<TEntity> entities)
         {
-            _rethinkContext.AddCommand(() =>
-                RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entities).RunAsync(_connection)
-            );
+            _dbContext.Set<TEntity>().AddRange(entities);
+        }
+
+        public void Remove(TEntity entity)
+        {
+            _dbContext.Set<TEntity>().Remove(entity);
+        }
+
+        public void RemoveRange(IEnumerable<TEntity> entities)
+        {
+            _dbContext.Set<TEntity>().RemoveRange(entities);
         }
     }
 }

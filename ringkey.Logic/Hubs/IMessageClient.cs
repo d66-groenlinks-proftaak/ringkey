@@ -8,5 +8,6 @@ namespace ringkey.Logic.Hubs
     {
         Task SendMessages(List<Message> message);
         Task SendMessage(Message message);
+        Task SendThreadDetails(Thread thread);
     }
 }

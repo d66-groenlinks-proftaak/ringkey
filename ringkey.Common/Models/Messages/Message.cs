@@ -1,13 +1,17 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ringkey.Common.Models.Messages
 {
     public class Message
     {
-        public string id { get; set; }
+        [Key]
+        public Guid Id { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }
         public string Content { get; set; }
+        public MessageType Type { get; set; }
+        public string Parent { get; set; }
         public long Created { get; set; }
     }
 }
