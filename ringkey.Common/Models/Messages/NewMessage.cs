@@ -6,7 +6,7 @@ namespace ringkey.Common.Models.Messages
     {
         public string Title { get; set; }
         public string Content { get; set; }
-        public DateTime Created { get; set; }
+        public long Created { get; set; }
         public string Email { get; set; }
         public string Author { get; set; }
     }

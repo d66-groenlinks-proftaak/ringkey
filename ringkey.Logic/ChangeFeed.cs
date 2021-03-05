@@ -36,7 +36,6 @@ namespace ringkey.Logic
             {
                 if (cursor.Current != null && cursor.Current.OldValue == null)
                 {
-                    Console.WriteLine("Testing!");
                     await _messageHub.Clients.All.SendMessage(cursor.Current.NewValue);
                 }
             }

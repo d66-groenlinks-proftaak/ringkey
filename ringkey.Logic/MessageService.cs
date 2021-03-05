@@ -15,7 +15,7 @@ namespace ringkey.Logic
 
         public bool CreateMessage(NewMessage message)
         {
-            message.Created = DateTime.Now.ToUniversalTime();
+            message.Created = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             
             _unitOfWork.Message.Create(message);
             

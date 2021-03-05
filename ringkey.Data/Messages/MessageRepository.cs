@@ -22,7 +22,7 @@ namespace ringkey.Data.Messages
 
         public List<Message> GetLatest(int amount)
         {
-            return RethinkDB.R.Db("ringkey").Table("Message").OrderBy(RethinkDB.R.Desc("created")).Limit(10).Run<List<Message>>(_connection);
+            return RethinkDB.R.Db("ringkey").Table("Message").OrderBy(RethinkDB.R.Desc("Created")).Limit(10).Run<List<Message>>(_connection);
         }
     }
 }
