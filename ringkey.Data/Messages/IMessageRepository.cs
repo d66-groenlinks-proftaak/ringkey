@@ -7,10 +7,9 @@ using ringkey.Common.Models.Messages;
 
 namespace ringkey.Data.Messages
 {
-    public interface IMessageRepository : IRepository<IMessage>
+    public interface IMessageRepository : IRepository<Message>
     {
         Task<Cursor<Change<Message>>> MessageChange();
-        void Create(IMessage message);
         List<Message> GetLatest(int amount);
     }
 }

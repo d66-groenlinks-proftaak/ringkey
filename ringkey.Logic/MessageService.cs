@@ -15,9 +15,15 @@ namespace ringkey.Logic
 
         public bool CreateMessage(NewMessage message)
         {
-            message.Created = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            _unitOfWork.Message.Add(new Message()
+            {
+                id = Guid.NewGuid().ToString(),
+                Author = message.Author,
+                Content = message.Content,
+                Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Title = message.Title
+            });
             
-            _unitOfWork.Message.Create(message);
             _unitOfWork.SaveChanges();
             
             return true;

@@ -7,6 +7,6 @@ namespace ringkey.Logic.Hubs
     public interface IMessageClient
     {
         Task SendMessages(List<Message> message);
-        Task SendMessage(IMessage message);
+        Task SendMessage(Message message);
     }
 }

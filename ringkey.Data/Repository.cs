@@ -40,14 +40,14 @@ namespace ringkey.Data
         {
             _rethinkContext.AddCommand(() =>
                 RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entity)
-                    .Run(_connection)
+                    .RunAsync(_connection)
             );
         }
 
         public void AddRange(IEnumerable<TEntity> entities)
         {
             _rethinkContext.AddCommand(() =>
-                RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entities).Run(_connection)
+                RethinkDB.R.Db("ringkey").Table(typeof(TEntity).Name.Split(".")[^1]).Insert(entities).RunAsync(_connection)
             );
         }
     }

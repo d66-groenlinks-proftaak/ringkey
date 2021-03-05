@@ -2,7 +2,7 @@
 
 namespace ringkey.Common.Models.Messages
 {
-    public class NewMessage : IMessage
+    public class NewMessage
     {
         public string Title { get; set; }
         public string Content { get; set; }

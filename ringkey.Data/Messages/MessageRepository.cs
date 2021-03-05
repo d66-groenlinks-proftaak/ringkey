@@ -8,18 +8,11 @@ using ringkey.Common.Models.Messages;
 
 namespace ringkey.Data.Messages
 {
-    public class MessageRepository : Repository<IMessage>, IMessageRepository
+    public class MessageRepository : Repository<Message>, IMessageRepository
     {
         public async Task<Cursor<Change<Message>>> MessageChange()
         {
             return await RethinkDB.R.Db("ringkey").Table(nameof(Message).Split(".")[^1]).Changes().RunChangesAsync<Message>(_connection);
-        }
-
-        public void Create(IMessage message)
-        {
-            _rethinkContext.AddCommand(() =>
-                RethinkDB.R.Db("ringkey").Table("Message").Insert(message).RunAsync(_connection)
-            );
         }
 
         public List<Message> GetLatest(int amount)
