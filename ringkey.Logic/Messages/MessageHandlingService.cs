@@ -29,12 +29,12 @@ namespace ringkey.Logic.Messages
                 _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
             }
 
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

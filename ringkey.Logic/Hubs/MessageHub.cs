@@ -13,13 +13,11 @@ namespace ringkey.Logic.Hubs
     {
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
-        private MessageHandlingService _messageHandlingService;
         
-        public MessageHub(UnitOfWork unitOfWork, MessageService messageService, MessageHandlingService messageHandlingService)
+        public MessageHub(UnitOfWork unitOfWork, MessageService messageService)
         {
             _unitOfWork = unitOfWork;
             _messageService = messageService;
-            _messageHandlingService = messageHandlingService;
         }
 
         public override Task OnConnectedAsync()
@@ -47,8 +45,6 @@ namespace ringkey.Logic.Hubs
         public async Task CreateMessage(NewMessage message)
         {
             Message msg = _messageService.CreateMessage(message);
-
-            _messageHandlingService.ToFilterMessages.Add(msg);
 
             await Clients.Group($"/").SendMessage(msg);
         }
