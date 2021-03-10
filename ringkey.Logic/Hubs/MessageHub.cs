@@ -79,5 +79,25 @@ namespace ringkey.Logic.Hubs
                 Children = _messageService.GetMessageReplies(id)
             });
         }
+
+
+        #region TO BE MOVED
+        /// <summary>
+        /// Dedicaded profile hub needs to be created, currently here for testing purposes
+        /// </summary>
+
+        public async Task GetProfile()
+        {
+            Console.WriteLine("test");
+            Dictionary<string, string> profileData = new Dictionary<string, string>() {
+                { "firstname", "Martijn" },
+                { "lastname", "Koppejan" },
+                { "email", "martijn.koppejan1@gmail.com" }
+            };
+
+            await Clients.Caller.SendProfile(profileData);
+        }
+
+        #endregion
     }
 }
