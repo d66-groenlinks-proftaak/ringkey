@@ -46,6 +46,8 @@ namespace ringkey
             services.AddScoped<MessageService>();
             
             services.AddTransient<UnitOfWork>();
+
+            services.AddHostedService<MessageHandlingService>();
             
             services.AddSignalR();
         }

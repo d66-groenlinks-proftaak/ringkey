@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
+using ringkey.Logic.Messages;
 
 namespace ringkey.Logic.Hubs
 {
@@ -12,11 +13,13 @@ namespace ringkey.Logic.Hubs
     {
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
+        private MessageHandlingService _messageHandlingService;
         
-        public MessageHub(UnitOfWork unitOfWork, MessageService messageService)
+        public MessageHub(UnitOfWork unitOfWork, MessageService messageService, MessageHandlingService messageHandlingService)
         {
             _unitOfWork = unitOfWork;
             _messageService = messageService;
+            _messageHandlingService = messageHandlingService;
         }
 
         public override Task OnConnectedAsync()
@@ -45,12 +48,16 @@ namespace ringkey.Logic.Hubs
         {
             Message msg = _messageService.CreateMessage(message);
 
+            _messageHandlingService.ToFilterMessages.Add(msg);
+
             await Clients.Group($"/").SendMessage(msg);
         }
         
         public async Task CreateReply(NewReply message)
         {
             Message msg = _messageService.CreateReply(message);
+
+            
 
             await Clients.Group($"/thread/{message.Parent}").SendThreadDetails(new Thread()
             {
