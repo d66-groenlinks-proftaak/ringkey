@@ -35,6 +35,9 @@ namespace ringkey.Data.Migrations
                     b.Property<string>("Parent")
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("Processed")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Title")
                         .HasColumnType("longtext");
 

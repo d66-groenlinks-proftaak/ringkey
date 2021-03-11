@@ -10,5 +10,6 @@ namespace ringkey.Data.Messages
         List<Message> GetLatest(int amount);
         List<Message> GetReplies(string id);
         Message GetById(string id);
+        List<Message> GetUnprocessed();
     }
 }

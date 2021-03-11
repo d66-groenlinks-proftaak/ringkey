@@ -36,5 +36,17 @@ namespace ringkey.Logic.Messages
         {
             throw new NotImplementedException();
         }
+
+        private bool ContainsBannedWords(string input)
+        {
+            string[] words = input.Split(" ");
+
+            foreach(string word in words)
+            {
+                if (word.ToLower().Contains("gaming"))
+                    return true;
+            }
+            return false;
+        }
     }
 }

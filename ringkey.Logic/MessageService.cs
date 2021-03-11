@@ -25,7 +25,8 @@ namespace ringkey.Logic
                     Content = message.Content,
                     Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                     Type = MessageType.Thread,
-                    Title = message.Title
+                    Title = message.Title,
+                    Processed = false
                 };
 
                 _unitOfWork.Message.Add(newMessage);
@@ -50,7 +51,8 @@ namespace ringkey.Logic
                 Content = reply.Content,
                 Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Parent = reply.Parent,
-                Type = MessageType.Reply
+                Type = MessageType.Reply,
+                Processed = false
             };
             
             _unitOfWork.Message.Add(newMessage);
