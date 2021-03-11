@@ -17,6 +17,26 @@ namespace ringkey.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.3");
 
+            modelBuilder.Entity("ringkey.Common.Models.Account", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Account");
+                });
+
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.Property<Guid>("Id")
@@ -47,6 +67,84 @@ namespace ringkey.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Message");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("MessageId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ReportMessage")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("Report");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Role", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Role");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Report", b =>
+                {
+                    b.HasOne("ringkey.Common.Models.Account", "Account")
+                        .WithMany("Reports")
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("ringkey.Common.Models.Messages.Message", "Message")
+                        .WithMany("Reports")
+                        .HasForeignKey("MessageId");
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Role", b =>
+                {
+                    b.HasOne("ringkey.Common.Models.Account", "Account")
+                        .WithMany("Roles")
+                        .HasForeignKey("AccountId");
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Account", b =>
+                {
+                    b.Navigation("Reports");
+
+                    b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
+                {
+                    b.Navigation("Reports");
                 });
 #pragma warning restore 612, 618
         }
