@@ -13,10 +13,11 @@ namespace ringkey.Logic
         public MessageService(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-        }
+            }
        
         public Message CreateMessage(NewMessage message)
         {
+            Console.WriteLine(Utility.CheckMessage(message));
             if (Utility.CheckMessage(message) == MessageErrors.NoError)
             {
                 Message newMessage = new Message()
