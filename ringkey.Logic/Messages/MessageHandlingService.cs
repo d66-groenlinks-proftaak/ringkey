@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ringkey.Logic.Hubs;
-using Thread = ringkey.Common.Models.Messages.Thread;
 
 namespace ringkey.Logic.Messages
 {
@@ -20,7 +19,6 @@ namespace ringkey.Logic.Messages
         private UnitOfWork _unitOfWork;
         private IHubContext<MessageHub, IMessageClient> _hub;
         private IServiceScopeFactory _services;
-        private MessageService _message;
         private List<BannedWord> BannedWords;
 
         public MessageHandlingService(IServiceScopeFactory services)
@@ -41,7 +39,6 @@ namespace ringkey.Logic.Messages
                 using (var scope = _services.CreateScope()) {
                     _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
                     _hub = scope.ServiceProvider.GetService<IHubContext<MessageHub, IMessageClient>>();
-                    _message = scope.ServiceProvider.GetService<MessageService>();
 
                     List<Message> ToFilterMessages = _unitOfWork.Message.GetUnprocessed();
 
@@ -54,9 +51,9 @@ namespace ringkey.Logic.Messages
                         message.Processed = true;
 
                         if (message.Type == MessageType.Thread)
-                            _hub.Clients.Group("/").SendMessage(message);
+                            await _hub.Clients.Group("/").SendMessage(message);
                         else if (message.Type == MessageType.Reply)
-                            _hub.Clients.Group($"/thread/{message.Parent}").SendChild(message);
+                            await _hub.Clients.Group($"/thread/{message.Parent}").SendChild(message);
                     }
                     
                     _unitOfWork.SaveChanges();
@@ -67,6 +64,8 @@ namespace ringkey.Logic.Messages
 
         private bool MessageConatinsBannedWord(Message message)
         {
+            if (message.Author != null && ContainsBannedWords(message.Author))
+                return true;
             if (message.Title != null && ContainsBannedWords(message.Title))
                 return true;
             if (message.Content != null && ContainsBannedWords(message.Content))
@@ -83,7 +82,7 @@ namespace ringkey.Logic.Messages
             {
                 foreach(BannedWord bannedWord in BannedWords)
                 {
-                    if (word.ToLower().Contains(bannedWord.Word))
+                    if (word.ToLower().Contains(bannedWord.Word.ToLower()))
                         return true;
                 }
             }
