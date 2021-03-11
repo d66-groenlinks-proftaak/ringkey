@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
+using ringkey.Logic.Messages;
 
 namespace ringkey.Logic
 {
@@ -13,23 +14,27 @@ namespace ringkey.Logic
         {
             _unitOfWork = unitOfWork;
         }
-
+       
         public Message CreateMessage(NewMessage message)
         {
-            Message newMessage = new Message()
+            if (Utility.CheckMessage(message) == MessageErrors.NoError)
             {
-                Author = message.Author,
-                Content = message.Content,
-                Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
-                Type = MessageType.Thread,
-                Title = message.Title
-            };
-            
-            _unitOfWork.Message.Add(newMessage);
-            
-            _unitOfWork.SaveChanges();
+                Message newMessage = new Message()
+                {
+                    Author = message.Author,
+                    Content = message.Content,
+                    Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                    Type = MessageType.Thread,
+                    Title = message.Title
+                };
 
-            return newMessage;
+                _unitOfWork.Message.Add(newMessage);
+
+                _unitOfWork.SaveChanges();
+
+                return newMessage;
+            }
+            return new Message();
         }
 
         public Message GetMessageDetails(string id)

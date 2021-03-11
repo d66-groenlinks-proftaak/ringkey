@@ -16,6 +16,7 @@ using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using ringkey.Data;
 using ringkey.Logic;
 using ringkey.Logic.Hubs;
+using ringkey.Logic.Messages;
 
 namespace ringkey
 {
@@ -46,6 +47,8 @@ namespace ringkey
             services.AddScoped<MessageService>();
             
             services.AddTransient<UnitOfWork>();
+
+            services.AddHostedService<MessageHandlingService>();
             
             services.AddSignalR();
         }

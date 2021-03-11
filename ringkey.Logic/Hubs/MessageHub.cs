@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
 using ringkey.Common.Models;
 using ringkey.Data;
+using ringkey.Logic.Messages;
 
 namespace ringkey.Logic.Hubs
 {
@@ -59,6 +60,8 @@ namespace ringkey.Logic.Hubs
         {
             Message msg = _messageService.CreateReply(message);
 
+            
+
             await Clients.Group($"/thread/{message.Parent}").SendThreadDetails(new Thread()
             {
                 Parent = _messageService.GetMessageDetails(msg.Parent),
@@ -79,5 +82,25 @@ namespace ringkey.Logic.Hubs
                 Children = _messageService.GetMessageReplies(id)
             });
         }
+
+
+        #region TO BE MOVED
+        /// <summary>
+        /// Dedicaded profile hub needs to be created, currently here for testing purposes
+        /// </summary>
+
+        public async Task GetProfile()
+        {
+            Console.WriteLine("test");
+            Dictionary<string, string> profileData = new Dictionary<string, string>() {
+                { "firstname", "Martijn" },
+                { "lastname", "Koppejan" },
+                { "email", "martijn.koppejan1@gmail.com" }
+            };
+
+            await Clients.Caller.SendProfile(profileData);
+        }
+
+        #endregion
     }
 }
