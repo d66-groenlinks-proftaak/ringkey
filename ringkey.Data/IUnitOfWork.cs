@@ -1,5 +1,6 @@
 ﻿using System;
 using ringkey.Data.Accounts;
+using ringkey.Data.BannedWords;
 using ringkey.Data.Messages;
 
 namespace ringkey.Data
@@ -8,5 +9,6 @@ namespace ringkey.Data
     {
         IAccountRepository Account { get; }
         IMessageRepository Message { get; }
+        IBannedWordsRepository BannedWords { get; }
     }
 }

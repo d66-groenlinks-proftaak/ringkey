@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ringkey.Common.Models;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
 using System;
@@ -15,6 +16,7 @@ namespace ringkey.Logic.Messages
     {
         private UnitOfWork _unitOfWork;
         private IServiceScopeFactory _services;
+        private List<BannedWord> BannedWords;
 
         public MessageHandlingService(IServiceScopeFactory services)
         {
@@ -23,22 +25,30 @@ namespace ringkey.Logic.Messages
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("test1");
-            
-            while (!cancellationToken.IsCancellationRequested)
+            using (var scope = _services.CreateScope())
+            {
+                _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
+                BannedWords = _unitOfWork.BannedWords.GetAllBannedWords();
+            }
+                while (!cancellationToken.IsCancellationRequested)
             {
                 using (var scope = _services.CreateScope()) {
                     _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
-                
-                    Console.WriteLine("test2");
-                    Console.WriteLine("test3");
+
                     List<Message> ToFilterMessages = _unitOfWork.Message.GetUnprocessed();
-                    Console.WriteLine(ToFilterMessages.Count);
+
+                    foreach (Message message in ToFilterMessages.ToList())
+                    {
+                        bool res = MessageConatinsBannedWord(message);
+                        if (!res)
+                            message.Processed = true;
+                        else
+                            _unitOfWork.Message.Remove(message);
+                         
+                    }
+                    _unitOfWork.SaveChanges();
                 }
-                
-                
                 await Task.Delay(1000);
-                
             }
         }
 
@@ -58,8 +68,11 @@ namespace ringkey.Logic.Messages
 
             foreach(string word in words)
             {
-                if (word.ToLower().Contains("gaming"))
-                    return true;
+                foreach(BannedWord bannedWord in BannedWords)
+                {
+                    if (word.ToLower().Contains(bannedWord.Word))
+                        return true;
+                }
             }
             return false;
         }

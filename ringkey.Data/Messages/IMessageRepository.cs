@@ -11,6 +11,5 @@ namespace ringkey.Data.Messages
         List<Message> GetReplies(string id);
         Message GetById(string id);
         List<Message> GetUnprocessed();
-        void ProcessedMessage(Message message);
     }
 }

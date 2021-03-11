@@ -39,17 +39,6 @@ namespace ringkey.Data.Messages
                 .ToList();
         }
 
-        public void ProcessedMessage(Message message)
-        {
-            Message _msg = _dbContext.Message.FirstOrDefault(msg => msg.Id == message.Id);
-            if(_msg != null)
-            {
-                _msg.Processed = true;
-                _dbContext.SaveChanges();
-            }
-            
-        }
-
         public MessageRepository(RingkeyDbContext context) : base(context)
         {
         }
