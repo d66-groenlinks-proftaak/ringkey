@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
+using ringkey.Common.Models;
 using ringkey.Data;
 using ringkey.Logic.Messages;
 
@@ -13,13 +14,11 @@ namespace ringkey.Logic.Hubs
     {
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
-        private MessageHandlingService _messageHandlingService;
         
-        public MessageHub(UnitOfWork unitOfWork, MessageService messageService, MessageHandlingService messageHandlingService)
+        public MessageHub(UnitOfWork unitOfWork, MessageService messageService)
         {
             _unitOfWork = unitOfWork;
             _messageService = messageService;
-            _messageHandlingService = messageHandlingService;
         }
 
         public override Task OnConnectedAsync()
@@ -48,11 +47,15 @@ namespace ringkey.Logic.Hubs
         {
             Message msg = _messageService.CreateMessage(message);
 
-            _messageHandlingService.ToFilterMessages.Add(msg);
-
             await Clients.Group($"/").SendMessage(msg);
         }
-        
+
+        public async Task ReportMessage(Report report)
+        {
+            
+            await Clients.Caller.ConfirmReport(true);
+        }
+
         public async Task CreateReply(NewReply message)
         {
             Message msg = _messageService.CreateReply(message);
@@ -79,5 +82,25 @@ namespace ringkey.Logic.Hubs
                 Children = _messageService.GetMessageReplies(id)
             });
         }
+
+
+        #region TO BE MOVED
+        /// <summary>
+        /// Dedicaded profile hub needs to be created, currently here for testing purposes
+        /// </summary>
+
+        public async Task GetProfile()
+        {
+            Console.WriteLine("test");
+            Dictionary<string, string> profileData = new Dictionary<string, string>() {
+                { "firstname", "Martijn" },
+                { "lastname", "Koppejan" },
+                { "email", "martijn.koppejan1@gmail.com" }
+            };
+
+            await Clients.Caller.SendProfile(profileData);
+        }
+
+        #endregion
     }
 }
