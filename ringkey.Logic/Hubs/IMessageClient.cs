@@ -11,14 +11,6 @@ namespace ringkey.Logic.Hubs
         Task SendThreadDetails(Thread thread);
         Task ConfirmReport(bool ReportConfirmation);
         Task SendChild(Message message);
-
-
-        #region TO BE MOVED
-        /// <summary>
-        /// To be moved to seperate interface, to accompany the future profile hub
-        /// Currently here for testing purposes
-        /// </summary>
         Task SendProfile(Dictionary<string, string> profile);
-        #endregion
     }
 }

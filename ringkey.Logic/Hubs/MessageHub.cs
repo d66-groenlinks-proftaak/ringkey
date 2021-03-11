@@ -68,23 +68,41 @@ namespace ringkey.Logic.Hubs
         }
 
 
-        #region TO BE MOVED
         /// <summary>
-        /// Dedicaded profile hub needs to be created, currently here for testing purposes
+        /// Retrieve profile data from database
         /// </summary>
-
-        public async Task GetProfile()
+        /// <param name="id">id attached with the account (in url)</param>
+        /// <returns>the profile data to display in the browser</returns>
+        public async Task GetProfile(string id)
         {
-            Console.WriteLine("test");
-            Dictionary<string, string> profileData = new Dictionary<string, string>() {
-                { "firstname", "Martijn" },
+            List<Dictionary<string, string>> profiles = new List<Dictionary<string, string>>();
+
+            #region testing profiles - to be removed
+            Dictionary<string, string> profile1Data = new Dictionary<string, string>() {
+                { "id", "1" },
+                { "firstname", "" },
                 { "lastname", "Koppejan" },
                 { "email", "martijn.koppejan1@gmail.com" }
             };
 
-            await Clients.Caller.SendProfile(profileData);
-        }
+            Dictionary<string, string> profile2Data = new Dictionary<string, string>() {
+                { "id", "asdf" },
+                { "firstname", "a" },
+                { "lastname", "bob" },
+                { "email", "xxx@xxx" }
+            };
 
-        #endregion
+            profiles.Add(profile1Data);
+            profiles.Add(profile2Data);
+            #endregion
+
+            Dictionary<string, string> temp = null;
+            foreach (Dictionary<string, string> profile in profiles)
+            {
+                if (profile["id"].Equals(id)) temp = profile;
+            }
+
+            await Clients.Caller.SendProfile(temp);
+        }
     }
 }
