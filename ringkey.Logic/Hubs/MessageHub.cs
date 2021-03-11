@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
+using ringkey.Common.Models;
 using ringkey.Data;
 
 namespace ringkey.Logic.Hubs
@@ -47,7 +48,13 @@ namespace ringkey.Logic.Hubs
 
             await Clients.Group($"/").SendMessage(msg);
         }
-        
+
+        public async Task ReportMessage(Report report)
+        {
+            
+            await Clients.Caller.ConfirmReport(true);
+        }
+
         public async Task CreateReply(NewReply message)
         {
             Message msg = _messageService.CreateReply(message);
