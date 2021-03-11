@@ -45,23 +45,18 @@ namespace ringkey.Logic.Hubs
 
         public async Task CreateMessage(NewMessage message)
         {
-            Message msg = _messageService.CreateMessage(message);
-
-            await Clients.Group($"/").SendMessage(msg);
+            _messageService.CreateMessage(message);
         }
 
         public async Task ReportMessage(Report report)
         {
-            
             await Clients.Caller.ConfirmReport(true);
         }
 
         public async Task CreateReply(NewReply message)
         {
             Message msg = _messageService.CreateReply(message);
-
             
-
             await Clients.Group($"/thread/{message.Parent}").SendThreadDetails(new Thread()
             {
                 Parent = _messageService.GetMessageDetails(msg.Parent),

@@ -61,8 +61,6 @@ namespace ringkey.Logic
             _unitOfWork.SaveChanges();
 
             return newMessage;
-            
-            _unitOfWork.SaveChanges();
         }
         
         public List<Message> GetMessageReplies(string id)
