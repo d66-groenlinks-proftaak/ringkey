@@ -9,6 +9,7 @@ namespace ringkey.Data
         public DbSet<Message> Message { get; set; }
         public DbSet<Message> MessageToProcess { get; set; }
 
+        public DbSet<Report> Reports { get; set; }
         public RingkeyDbContext(DbContextOptions options) : base(options) {}
     }
 }
