@@ -29,13 +29,15 @@ namespace ringkey.Logic.Messages
             {
                 using (var scope = _services.CreateScope()) {
                     _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
+                
+                    Console.WriteLine("test2");
+                    Console.WriteLine("test3");
+                    List<Message> ToFilterMessages = _unitOfWork.Message.GetUnprocessed();
+                    Console.WriteLine(ToFilterMessages.Count);
                 }
                 
-                Console.WriteLine("test2");
+                
                 await Task.Delay(1000);
-                Console.WriteLine("test3");
-                List<Message> ToFilterMessages = _unitOfWork.Message.GetUnprocessed();
-                Console.WriteLine(ToFilterMessages.Count);
                 
             }
         }
