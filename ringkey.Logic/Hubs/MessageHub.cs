@@ -54,9 +54,14 @@ namespace ringkey.Logic.Hubs
                 error = _messageService.CreateMessage(message, (Account)Context.Items["account"]);
             else
                 error = _messageService.CreateMessage(message, null);
-            
+
+            Console.WriteLine(error);
+
             if (error != MessageErrors.NoError)
+            {
+                Console.WriteLine("Send error!");
                 await Clients.Caller.MessageCreationError(error);
+            }
         }
 
         public async Task Authenticate(string token)
@@ -143,6 +148,7 @@ namespace ringkey.Logic.Hubs
                 Parent = new ThreadView()
                 {
                     Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                    AuthorId = message.Author.Id.ToString(),
                     Content = message.Content,
                     Id = message.Id,
                     Parent = message.Parent,

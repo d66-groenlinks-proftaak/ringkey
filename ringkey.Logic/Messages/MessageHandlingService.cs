@@ -51,9 +51,26 @@ namespace ringkey.Logic.Messages
                         message.Processed = true;
 
                         if (message.Type == MessageType.Thread)
-                            await _hub.Clients.Group("/").SendMessage(message);
+                            await _hub.Clients.Group("/").SendMessage(new ThreadView()
+                            {
+                                Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                                Content = message.Content,
+                                AuthorId = message.Author.Id.ToString(),
+                                Id = message.Id,
+                                Parent = message.Parent,
+                                Title = message.Title,
+                                Created = message.Created
+                            });
                         else if (message.Type == MessageType.Reply)
-                            await _hub.Clients.Group($"/thread/{message.Parent}").SendChild(message);
+                            await _hub.Clients.Group($"/thread/{message.Parent}").SendChild(new ThreadView()
+                            {
+                                Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                                AuthorId = message.Author.Id.ToString(),
+                                Content = message.Content,
+                                Id = message.Id,
+                                Parent = message.Parent,
+                                Created = message.Created
+                            });;
                     }
                     
                     _unitOfWork.SaveChanges();

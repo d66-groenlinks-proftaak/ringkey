@@ -5,6 +5,7 @@ using ringkey.Common.Models;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
 using ringkey.Logic.Messages;
+using Utility = ringkey.Logic.Accounts.Utility;
 
 namespace ringkey.Logic
 {
@@ -16,71 +17,71 @@ namespace ringkey.Logic
         {
             _unitOfWork = unitOfWork;
             }
-       
+
         public MessageErrors CreateMessage(NewMessage message, Account authenticated)
         {
-            Console.WriteLine(Utility.CheckMessage(message));
-            MessageErrors error = Utility.CheckMessage(message);
-            if (error == MessageErrors.NoError)
-            {
-                Account account = _unitOfWork.Account.GetByEmail(message.Email);
+            MessageErrors error;
+            Account account = _unitOfWork.Account.GetByEmail(message.Email);
 
-                if (account != null)
+            if (account != null)
+            {
+                error = Messages.Utility.CheckMessage(message, false);
+                
+                if (account.Roles.Any(role => role.Type != RoleType.Guest))
                 {
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (authenticated != null && authenticated.Id == account.Id)
                     {
-                        if (authenticated != null && authenticated.Id == account.Id)
-                        {
-                            
-                        } else
-                            return MessageErrors.EmailAlreadyOwned;
+
                     }
+                    else
+                        return MessageErrors.EmailAlreadyOwned;
+                }
+            }
+            else
+            {
+                error = Messages.Utility.CheckMessage(message);
+                
+                if (authenticated == null)
+                {
+                    account = new Account()
+                    {
+                        Email = message.Email,
+                        Password = "",
+                        FirstName = message.Author,
+                        LastName = "",
+                        Roles = new List<Role>()
+                        {
+                            new Role()
+                            {
+                                Type = RoleType.Guest
+                            }
+                        }
+                    };
+
+                    _unitOfWork.Account.Add(account);
                 }
                 else
                 {
-                    if (authenticated == null)
-                    {
-                        account = new Account()
-                        {
-                            Email = message.Email,
-                            Password = "",
-                            FirstName = message.Author,
-                            LastName = "",
-                            Roles = new List<Role>()
-                            {
-                                new Role()
-                                {
-                                    Type = RoleType.Guest
-                                }
-                            }
-                        };
-                        
-                        _unitOfWork.Account.Add(account);
-                    }
-                    else
-                    {
-                        account = _unitOfWork.Account.GetById(account.Id.ToString());
-                    }
+                    account = _unitOfWork.Account.GetById(authenticated.Id.ToString());
                 }
-                
-                Message newMessage = new Message()
-                {
-                    Author = account,
-                    Content = message.Content,
-                    Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
-                    Type = MessageType.Thread,
-                    Title = message.Title,
-                    Processed = false
-                };
-
-                _unitOfWork.Message.Add(newMessage);
-
-                _unitOfWork.SaveChanges();
-
-                return MessageErrors.NoError;
             }
-            
-            return error;
+
+            Message newMessage = new Message()
+            {
+                Author = account,
+                Content = message.Content,
+                Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Type = MessageType.Thread,
+                Title = message.Title,
+                Processed = false
+            };
+
+            _unitOfWork.Message.Add(newMessage);
+
+            _unitOfWork.SaveChanges();
+
+            return MessageErrors.NoError;
+
         }
 
         public Message GetMessageDetails(string id)
@@ -94,18 +95,14 @@ namespace ringkey.Logic
 
             if (account != null)
             {
-                if (authenticated == null)
-                    return MessageErrors.EmailAlreadyOwned;
-
-                if (account.Id != authenticated.Id)
+                if (account.Roles.Any(role => role.Type != RoleType.Guest))
                 {
-                    if (!account.Roles.Contains(new Role()
+                    if (authenticated != null && authenticated.Id == account.Id)
                     {
-                        Type = RoleType.Guest
-                    }))
-                    {
-                        return MessageErrors.EmailAlreadyOwned;
+
                     }
+                    else
+                        return MessageErrors.EmailAlreadyOwned;
                 }
             }
             else
@@ -129,6 +126,10 @@ namespace ringkey.Logic
 
                     _unitOfWork.Account.Add(account);
                 }
+                else
+                {
+                    account = _unitOfWork.Account.GetById(authenticated.Id.ToString());
+                }
             }
 
             Message newMessage = new Message()
@@ -136,6 +137,7 @@ namespace ringkey.Logic
                 Author = account,
                 Content = message.Content,
                 Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                Parent = message.Parent,
                 Type = MessageType.Reply,
                 Processed = false
             };
@@ -157,6 +159,7 @@ namespace ringkey.Logic
                 replies.Add(new ThreadView()
                 {
                     Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
                     Parent = msg.Parent,
@@ -178,6 +181,7 @@ namespace ringkey.Logic
                 replies.Add(new ThreadView()
                 {
                     Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
                     Parent = msg.Parent,

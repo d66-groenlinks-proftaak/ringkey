@@ -9,10 +9,10 @@ namespace ringkey.Logic.Hubs
     public interface IMessageClient
     {
         Task SendThreads(List<ThreadView> message);
-        Task SendMessage(Message message);
+        Task SendMessage(ThreadView message);
         Task SendThreadDetails(Thread thread);
         Task ConfirmReport(bool ReportConfirmation);
-        Task SendChild(Message message);
+        Task SendChild(ThreadView message);
         Task SendProfile(Dictionary<string, string> profile);
         Task AuthenticateFailed(AccountError error);
         Task Authenticated(AuthenticateResponse authenticateResponse);
