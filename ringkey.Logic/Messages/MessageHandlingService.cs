@@ -11,30 +11,57 @@ using System.Threading.Tasks;
 
 namespace ringkey.Logic.Messages
 {
-    public class MessageHandlingService : IHostedService
+    public class MessageHandlingService : BackgroundService
     {
         private UnitOfWork _unitOfWork;
         private IServiceScopeFactory _services;
-
-        public List<Message> ToFilterMessages = new List<Message>();
 
         public MessageHandlingService(IServiceScopeFactory services)
         {
             _services = services;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            using (var scope = _services.CreateScope()) {
-                _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
+            Console.WriteLine("test1");
+            
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                using (var scope = _services.CreateScope()) {
+                    _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
+                
+                    Console.WriteLine("test2");
+                    Console.WriteLine("test3");
+                    List<Message> ToFilterMessages = _unitOfWork.Message.GetUnprocessed();
+                    Console.WriteLine(ToFilterMessages.Count);
+                }
+                
+                
+                await Task.Delay(1000);
+                
             }
-
-            return Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        private bool MessageConatinsBannedWord(Message message)
         {
-            return Task.CompletedTask;
+            if (ContainsBannedWords(message.Title))
+                return true;
+            if (ContainsBannedWords(message.Content))
+                return true;
+
+            return false;
+        }
+
+        private bool ContainsBannedWords(string input)
+        {
+            string[] words = input.Split(" ");
+
+            foreach(string word in words)
+            {
+                if (word.ToLower().Contains("gaming"))
+                    return true;
+            }
+            return false;
         }
     }
 }

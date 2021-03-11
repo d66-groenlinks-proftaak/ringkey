@@ -12,7 +12,7 @@ namespace ringkey.Data.Messages
         public List<Message> GetLatest(int amount)
         {
             return _dbContext.Message
-                .Where(msg => msg.Type == MessageType.Thread)
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Take(10)
                 .ToList();
@@ -21,18 +21,38 @@ namespace ringkey.Data.Messages
         public List<Message> GetReplies(string id)
         {
             return _dbContext.Message
-                .Where(msg => msg.Type == MessageType.Reply && msg.Parent == id)
+                .Where(msg => msg.Type == MessageType.Reply && msg.Parent == id && msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .ToList();
         }
 
         public Message GetById(string id)
         {
-            return _dbContext.Message.FirstOrDefault(msg => msg.Id.ToString() == id);
+            return _dbContext.Message.FirstOrDefault(msg => msg.Id.ToString() == id && msg.Processed);
+        }
+
+        public List<Message> GetUnprocessed()
+        {
+            return _dbContext.Message
+                .Where(msg => !msg.Processed)
+                .OrderByDescending(msg => msg.Created)
+                .ToList();
+        }
+
+        public void ProcessedMessage(Message message)
+        {
+            Message _msg = _dbContext.Message.FirstOrDefault(msg => msg.Id == message.Id);
+            if(_msg != null)
+            {
+                _msg.Processed = true;
+                _dbContext.SaveChanges();
+            }
+            
         }
 
         public MessageRepository(RingkeyDbContext context) : base(context)
         {
         }
+
     }
 }

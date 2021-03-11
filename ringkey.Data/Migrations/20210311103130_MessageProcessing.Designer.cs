@@ -9,8 +9,8 @@ using ringkey.Data;
 namespace ringkey.Data.Migrations
 {
     [DbContext(typeof(RingkeyDbContext))]
-    [Migration("20210310142344_MessagesToProcess")]
-    partial class MessagesToProcess
+    [Migration("20210311103130_MessageProcessing")]
+    partial class MessageProcessing
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,6 +36,9 @@ namespace ringkey.Data.Migrations
 
                     b.Property<string>("Parent")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("Processed")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Title")
                         .HasColumnType("longtext");

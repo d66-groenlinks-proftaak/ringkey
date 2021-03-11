@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ringkey.Common.Models.Messages
@@ -13,5 +14,7 @@ namespace ringkey.Common.Models.Messages
         public MessageType Type { get; set; }
         public string Parent { get; set; }
         public long Created { get; set; }
+        public bool Processed { get; set; }
+        public List<Report> Reports { get; set; }
     }
 }
