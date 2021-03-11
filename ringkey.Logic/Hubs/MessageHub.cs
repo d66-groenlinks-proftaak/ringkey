@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
 using ringkey.Common.Models;
 using ringkey.Data;
+using ringkey.Logic.Accounts;
 using ringkey.Logic.Messages;
 
 namespace ringkey.Logic.Hubs
@@ -14,11 +15,13 @@ namespace ringkey.Logic.Hubs
     {
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
+        private AccountService _accountService;
         
-        public MessageHub(UnitOfWork unitOfWork, MessageService messageService)
+        public MessageHub(UnitOfWork unitOfWork, MessageService messageService, AccountService accountService)
         {
             _unitOfWork = unitOfWork;
             _messageService = messageService;
+            _accountService = accountService;
         }
 
         public override Task OnConnectedAsync()
@@ -46,6 +49,61 @@ namespace ringkey.Logic.Hubs
         public async Task CreateMessage(NewMessage message)
         {
             _messageService.CreateMessage(message);
+        }
+
+        public async Task Authenticate(string token)
+        {
+            Account acc = _accountService.GetByToken(token);
+            if (acc != null)
+            {
+                await Clients.Caller.Authenticated(new AuthenticateResponse()
+                {
+                    Email = acc.Email,
+                    Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
+                });
+
+                Context.Items["account"] = acc;
+            }
+            else
+                await Clients.Caller.AuthenticateFailed(AccountError.InvalidLogin);
+        }
+
+        public async Task Login(AccountLogin account)
+        {
+            Account acc = _accountService.Login(account);
+            if (acc != null)
+            {
+                await Clients.Caller.Authenticated(new AuthenticateResponse()
+                {
+                    Email = account.Email,
+                    Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
+                });
+
+                Context.Items["account"] = acc;
+            }
+            else
+                await Clients.Caller.AuthenticateFailed(AccountError.InvalidLogin);
+        }
+
+        public async Task Register(AccountRegister account)
+        {
+            AccountError error = _accountService.Register(account);
+
+            if (error != AccountError.NoError)
+                await Clients.Caller.AuthenticateFailed(error);
+            else
+            {
+                Account acc = _unitOfWork.Account.GetByEmail(account.Email);
+                
+                await Clients.Caller.Authenticated(new AuthenticateResponse()
+                {
+                    Email = account.Email,
+                    Token = Accounts.Utility.GenerateJwtToken(acc)
+                });
+                
+                Context.Items["account"] = acc;
+            }
+
         }
 
         public async Task ReportMessage(Report report)

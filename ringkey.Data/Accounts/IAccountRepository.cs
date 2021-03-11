@@ -5,5 +5,7 @@ namespace ringkey.Data.Accounts
 {
     public interface IAccountRepository : IRepository<Account>
     {
+        Account GetByEmail(string email);
+        Account GetById(string id);
     }
 }

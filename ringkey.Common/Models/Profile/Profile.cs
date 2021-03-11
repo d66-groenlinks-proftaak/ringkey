@@ -8,10 +8,9 @@ namespace ringkey.Common.Models.NewFolder
 {
     public class Profile
     {
-        public string username;
-        public string firstName;
-        public string lastName;
-        public string email;
-        public AccountType role;
+        public string FirstName;
+        public string LastName;
+        public string Email;
+        public AccountType Role;
     }
 }
