@@ -40,11 +40,11 @@ namespace ringkey.Logic.Messages
                     foreach (Message message in ToFilterMessages.ToList())
                     {
                         bool res = MessageConatinsBannedWord(message);
-                        if (!res)
-                            message.Processed = true;
-                        else
-                            _unitOfWork.Message.Remove(message);
-                         
+                        if (res)
+                            message.Type = MessageType.PossibleSpam;
+                        
+                        message.Processed = true;
+
                     }
                     _unitOfWork.SaveChanges();
                 }

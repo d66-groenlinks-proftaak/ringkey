@@ -5,6 +5,7 @@ namespace ringkey.Common.Models.Messages
     public enum MessageType
     {
         Thread,
-        Reply
+        Reply,
+        PossibleSpam
     }
 }
