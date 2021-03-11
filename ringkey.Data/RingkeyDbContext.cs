@@ -7,8 +7,8 @@ namespace ringkey.Data
     public class RingkeyDbContext : DbContext
     {
         public DbSet<Message> Message { get; set; }
-        public DbSet<BannedWord> BannedWords { get; set; }
-
+        public DbSet<Account> Account { get; set; }
+        public DbSet<Report> Report { get; set; }
         public RingkeyDbContext(DbContextOptions options) : base(options) {}
     }
 }

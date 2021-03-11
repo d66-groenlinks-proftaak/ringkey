@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ringkey.Logic.Messages
@@ -12,15 +13,11 @@ namespace ringkey.Logic.Messages
     {
        public static bool IsValidEmail(string email)
         {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
+            Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
+            Match match = regex.Match(email.ToLower());
+            if (match.Success)
+                return true;
+            return false;
         } 
 
         public static MessageErrors CheckMessage(NewMessage message)
@@ -41,11 +38,11 @@ namespace ringkey.Logic.Messages
                 return MessageErrors.TitleTooShort;
             if (newMessage.Title.Length > 40)
                 return MessageErrors.TitleTooLong;
-            if (newMessage.Author.Length < 3)
+            if (newMessage.Author.Length < 2)
                 return MessageErrors.AuthorTooShort;
-            if (newMessage.Author.Length > 100)
+            if (newMessage.Author.Length > 50)
                 return MessageErrors.AuthorTooLong;
-            if (IsValidEmail(message.Email))
+            if (!IsValidEmail(message.Email))
                 return MessageErrors.InvalidEmail;
 
             return MessageErrors.NoError;
