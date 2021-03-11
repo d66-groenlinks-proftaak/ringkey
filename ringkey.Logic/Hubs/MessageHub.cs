@@ -35,7 +35,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestUpdate()
         {
-            await Clients.Caller.SendMessages(_unitOfWork.Message.GetLatest(10));
+            await Clients.Caller.SendThreads(_messageService.GetLatest(10));
         }
 
         public async Task UpdatePage(string page)
@@ -48,7 +48,15 @@ namespace ringkey.Logic.Hubs
 
         public async Task CreateMessage(NewMessage message)
         {
-            _messageService.CreateMessage(message);
+            MessageErrors error;
+            
+            if(Context.Items.ContainsKey("account"))
+                error = _messageService.CreateMessage(message, (Account)Context.Items["account"]);
+            else
+                error = _messageService.CreateMessage(message, null);
+            
+            if (error != MessageErrors.NoError)
+                await Clients.Caller.MessageCreationError(error);
         }
 
         public async Task Authenticate(string token)
@@ -115,14 +123,32 @@ namespace ringkey.Logic.Hubs
 
         public async Task CreateReply(NewReply message)
         {
-            _messageService.CreateReply(message);
+            MessageErrors error;
+            
+            if(Context.Items.ContainsKey("account"))
+                error = _messageService.CreateReply(message, (Account)Context.Items["account"]);
+            else
+                error = _messageService.CreateReply(message, null);
+
+            if (error != MessageErrors.NoError)
+                await Clients.Caller.MessageCreationError(error);
         }
         
         public async Task LoadMessageThread(string id)
         {
+            Message message = _messageService.GetMessageDetails(id);
+            
             await Clients.Caller.SendThreadDetails(new Thread()
             {
-                Parent = _messageService.GetMessageDetails(id),
+                Parent = new ThreadView()
+                {
+                    Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                    Content = message.Content,
+                    Id = message.Id,
+                    Parent = message.Parent,
+                    Title = message.Title,
+                    Created = message.Created
+                },
                 Children = _messageService.GetMessageReplies(id)
             });
         }

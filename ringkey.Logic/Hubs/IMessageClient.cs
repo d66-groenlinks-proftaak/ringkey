@@ -8,7 +8,7 @@ namespace ringkey.Logic.Hubs
 {
     public interface IMessageClient
     {
-        Task SendMessages(List<Message> message);
+        Task SendThreads(List<ThreadView> message);
         Task SendMessage(Message message);
         Task SendThreadDetails(Thread thread);
         Task ConfirmReport(bool ReportConfirmation);
@@ -16,5 +16,6 @@ namespace ringkey.Logic.Hubs
         Task SendProfile(Dictionary<string, string> profile);
         Task AuthenticateFailed(AccountError error);
         Task Authenticated(AuthenticateResponse authenticateResponse);
+        Task MessageCreationError(MessageErrors error);
     }
 }

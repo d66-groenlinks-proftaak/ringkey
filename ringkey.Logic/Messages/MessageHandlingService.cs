@@ -64,8 +64,6 @@ namespace ringkey.Logic.Messages
 
         private bool MessageConatinsBannedWord(Message message)
         {
-            if (message.Author != null && ContainsBannedWords(message.Author))
-                return true;
             if (message.Title != null && ContainsBannedWords(message.Title))
                 return true;
             if (message.Content != null && ContainsBannedWords(message.Content))

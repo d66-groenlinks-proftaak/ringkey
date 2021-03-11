@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using ringkey.Common.Models.Messages;
 
 namespace ringkey.Common.Models
 {
@@ -14,5 +15,6 @@ namespace ringkey.Common.Models
         public string Password { get; set; }
         public List<Role> Roles { get; set; }
         public List<Report> Reports { get; set; }
+        public List<Message> Messages { get; set; }
     }
 }

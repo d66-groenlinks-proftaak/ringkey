@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
@@ -88,7 +89,14 @@ namespace ringkey.Logic.Accounts
                 Email = account.Email,
                 FirstName = account.FirstName,
                 LastName = account.LastName,
-                Password = Argon2.Hash(account.Password)
+                Password = Argon2.Hash(account.Password),
+                Roles = new List<Role>()
+                {
+                    new Role()
+                    {
+                        Type = RoleType.Member
+                    }
+                }
             });
 
             _unitOfWork.SaveChanges();
