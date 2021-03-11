@@ -56,13 +56,7 @@ namespace ringkey.Logic.Messages
                         if (message.Type == MessageType.Thread)
                             _hub.Clients.Group("/").SendMessage(message);
                         else if (message.Type == MessageType.Reply)
-                        {
-                            _hub.Clients.Group($"/thread/{message.Parent}").SendThreadDetails(new Thread()
-                            {
-                                Parent = _message.GetMessageDetails(message.Parent),
-                                Children = _message.GetMessageReplies(message.Parent)
-                            });
-                        }
+                            _hub.Clients.Group($"/thread/{message.Parent}").SendChild(message);
                     }
                     
                     _unitOfWork.SaveChanges();
@@ -73,9 +67,9 @@ namespace ringkey.Logic.Messages
 
         private bool MessageConatinsBannedWord(Message message)
         {
-            if (ContainsBannedWords(message.Title))
+            if (message.Title != null && ContainsBannedWords(message.Title))
                 return true;
-            if (ContainsBannedWords(message.Content))
+            if (message.Content != null && ContainsBannedWords(message.Content))
                 return true;
 
             return false;

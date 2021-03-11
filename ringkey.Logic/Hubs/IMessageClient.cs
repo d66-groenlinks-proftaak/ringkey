@@ -10,6 +10,7 @@ namespace ringkey.Logic.Hubs
         Task SendMessage(Message message);
         Task SendThreadDetails(Thread thread);
         Task ConfirmReport(bool ReportConfirmation);
+        Task SendChild(Message message);
 
 
         #region TO BE MOVED

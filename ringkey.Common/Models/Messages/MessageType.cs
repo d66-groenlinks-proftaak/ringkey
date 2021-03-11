@@ -6,6 +6,6 @@ namespace ringkey.Common.Models.Messages
     {
         Thread,
         Reply,
-        PossibleSpam
+        PossibleSpam,
     }
 }

@@ -55,22 +55,11 @@ namespace ringkey.Logic.Hubs
 
         public async Task CreateReply(NewReply message)
         {
-            Message msg = _messageService.CreateReply(message);
-            
-            await Clients.Group($"/thread/{message.Parent}").SendThreadDetails(new Thread()
-            {
-                Parent = _messageService.GetMessageDetails(msg.Parent),
-                Children = _messageService.GetMessageReplies(msg.Parent)
-            });
+            _messageService.CreateReply(message);
         }
         
         public async Task LoadMessageThread(string id)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, (string) Context.Items["page"] ?? string.Empty);
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"/thread/{id}");
-
-            Context.Items["page"] = $"thread/{id}";
-            
             await Clients.Caller.SendThreadDetails(new Thread()
             {
                 Parent = _messageService.GetMessageDetails(id),
