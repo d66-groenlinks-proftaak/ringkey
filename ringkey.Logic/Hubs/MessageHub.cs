@@ -59,6 +59,7 @@ namespace ringkey.Logic.Hubs
                 await Clients.Caller.Authenticated(new AuthenticateResponse()
                 {
                     Email = acc.Email,
+                    AccountId = acc.Id.ToString(),
                     Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
                 });
 
@@ -76,6 +77,7 @@ namespace ringkey.Logic.Hubs
                 await Clients.Caller.Authenticated(new AuthenticateResponse()
                 {
                     Email = account.Email,
+                    AccountId = acc.Id.ToString(),
                     Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
                 });
 
