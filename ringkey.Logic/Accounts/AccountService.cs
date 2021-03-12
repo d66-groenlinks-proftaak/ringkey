@@ -81,23 +81,40 @@ namespace ringkey.Logic.Accounts
             if (account.Password.Length > 50)
                 return AccountError.PasswordTooLong;
 
+            Account tmp = _unitOfWork.Account.GetByEmail(account.Email);
             if (_unitOfWork.Account.GetByEmail(account.Email) != null)
-                return AccountError.EmailInUse;
-            
-            _unitOfWork.Account.Add(new Account()
             {
-                Email = account.Email,
-                FirstName = account.FirstName,
-                LastName = account.LastName,
-                Password = Argon2.Hash(account.Password),
-                Roles = new List<Role>()
+                if (tmp.Roles.Any(role => role.Type == RoleType.Guest))
                 {
-                    new Role()
+                    tmp.FirstName = account.FirstName;
+                    tmp.LastName = account.LastName;
+                    tmp.Password = Argon2.Hash(account.Password);
+                    tmp.Roles = new List<Role>()
                     {
-                        Type = RoleType.Member
+                        new Role() {
+                            Type = RoleType.Member
+                        }
+                    };
+                } else
+                    return AccountError.EmailInUse;
+            }
+            else
+            {
+                _unitOfWork.Account.Add(new Account()
+                {
+                    Email = account.Email,
+                    FirstName = account.FirstName,
+                    LastName = account.LastName,
+                    Password = Argon2.Hash(account.Password),
+                    Roles = new List<Role>()
+                    {
+                        new Role()
+                        {
+                            Type = RoleType.Member
+                        }
                     }
-                }
-            });
+                });
+            }
 
             _unitOfWork.SaveChanges();
             
