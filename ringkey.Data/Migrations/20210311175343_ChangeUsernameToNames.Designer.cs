@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ringkey.Data;
 
 namespace ringkey.Data.Migrations
 {
     [DbContext(typeof(RingkeyDbContext))]
-    partial class RingkeyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210311175343_ChangeUsernameToNames")]
+    partial class ChangeUsernameToNames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,8 +58,8 @@ namespace ringkey.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("AuthorId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("Author")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Content")
                         .HasColumnType("longtext");
@@ -78,8 +80,6 @@ namespace ringkey.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
 
                     b.ToTable("Message");
                 });
@@ -126,15 +126,6 @@ namespace ringkey.Data.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
-                {
-                    b.HasOne("ringkey.Common.Models.Account", "Author")
-                        .WithMany("Messages")
-                        .HasForeignKey("AuthorId");
-
-                    b.Navigation("Author");
-                });
-
             modelBuilder.Entity("ringkey.Common.Models.Report", b =>
                 {
                     b.HasOne("ringkey.Common.Models.Account", "Account")
@@ -161,8 +152,6 @@ namespace ringkey.Data.Migrations
 
             modelBuilder.Entity("ringkey.Common.Models.Account", b =>
                 {
-                    b.Navigation("Messages");
-
                     b.Navigation("Reports");
 
                     b.Navigation("Roles");

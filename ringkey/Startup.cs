@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using ringkey.Data;
 using ringkey.Logic;
+using ringkey.Logic.Accounts;
 using ringkey.Logic.Hubs;
 using ringkey.Logic.Messages;
 
@@ -45,6 +46,7 @@ namespace ringkey
             });
 
             services.AddScoped<MessageService>();
+            services.AddScoped<AccountService>();
             
             services.AddTransient<UnitOfWork>();
 
