@@ -19,7 +19,10 @@ namespace ringkey.Logic.Messages
         private UnitOfWork _unitOfWork;
         private IHubContext<MessageHub, IMessageClient> _hub;
         private IServiceScopeFactory _services;
-        private List<BannedWord> BannedWords;
+        private List<BannedWord> bannedWords;
+
+        private CharCombination[] charCombinations = { new CharCombination('e', '3'), new CharCombination('a', '4'), new CharCombination('i', '1'), new CharCombination('l', '1'), new CharCombination('o', '0'), new CharCombination('b', '8'), new CharCombination('g', '9'), new CharCombination('a', '@'), };
+        private char[] alphabet = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 
         public MessageHandlingService(IServiceScopeFactory services)
         {
@@ -31,7 +34,7 @@ namespace ringkey.Logic.Messages
             using (var scope = _services.CreateScope())
             {
                 _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
-                BannedWords = _unitOfWork.BannedWords.GetAllBannedWords();
+                bannedWords = _unitOfWork.BannedWords.GetAllBannedWords();
             }
             
             while (!cancellationToken.IsCancellationRequested)
@@ -44,7 +47,7 @@ namespace ringkey.Logic.Messages
 
                     foreach (Message message in ToFilterMessages.ToList())
                     {
-                        bool res = MessageConatinsBannedWord(message);
+                        bool res = messageConatinsBannedWord(message);
                         if (res)
                             message.Type = MessageType.PossibleSpam;
                         
@@ -79,29 +82,73 @@ namespace ringkey.Logic.Messages
             }
         }
 
-        private bool MessageConatinsBannedWord(Message message)
+        private bool messageConatinsBannedWord(Message message)
         {
-            if (message.Title != null && ContainsBannedWords(message.Title))
+            if (message.Title != null && containsBannedWords(message.Title))
                 return true;
-            if (message.Content != null && ContainsBannedWords(message.Content))
+            if (message.Content != null && containsBannedWords(message.Content))
                 return true;
 
             return false;
         }
 
-        private bool ContainsBannedWords(string input)
+        private bool containsBannedWords(string input)
         {
             string words = input.Replace(" ", "");
             words = words.Replace("_", "");
             words = words.Replace("-", "");
 
-            foreach (BannedWord bannedWord in BannedWords)
+            foreach (BannedWord bannedWord in bannedWords)
             {
-                if (words.ToLower().Contains(bannedWord.Word.ToLower()))
-                    return true;
+                List<string> allBannedWords = leetSpeak(bannedWord.Word);
+                foreach(string word in allBannedWords)
+                {
+                    if (words.ToLower().Contains(word.ToLower()))
+                        return true;
+                }
             }
 
             return false;
+        }
+
+        private List<string> leetSpeak(string input)
+        {
+            List<string> output = new List<string>();
+            output.Add(input);
+            if (input.Contains("*"))
+            {
+                foreach (char letter in alphabet)
+                {
+                    string temp = input.Replace('*', letter);
+                    if (output.Find(x => x == temp) == null)
+                        output.Add(temp);
+                    List<string> templist = leetSpeak(temp);
+                    foreach (string tempval in templist)
+                    {
+                        if (output.Find(x => x.Contains(tempval)) == null)
+                            output.Add(tempval);
+                    }
+                }
+            }
+
+            foreach (CharCombination combination in charCombinations)
+            {
+                if (input.Contains(combination.Value))
+                {
+                    string temp = input.Replace(combination.Value, combination.ReplaceValue);
+                    if (output.Find(x => x.Contains(temp)) == null)
+                        output.Add(temp);
+
+                    List<string> templist = leetSpeak(temp);
+                    foreach (string tempval in templist)
+                    {
+                        if (output.Find(x => x.Contains(tempval)) == null)
+                            output.Add(tempval);
+                    }
+                }
+            }
+
+            return output;
         }
     }
 }
