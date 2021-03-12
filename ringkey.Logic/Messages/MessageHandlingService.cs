@@ -76,16 +76,16 @@ namespace ringkey.Logic.Messages
 
         private bool ContainsBannedWords(string input)
         {
-            string[] words = input.Split(" ");
+            string words = input.Replace(" ", "");
+            words = words.Replace("_", "");
+            words = words.Replace("-", "");
 
-            foreach(string word in words)
+            foreach (BannedWord bannedWord in BannedWords)
             {
-                foreach(BannedWord bannedWord in BannedWords)
-                {
-                    if (word.ToLower().Contains(bannedWord.Word.ToLower()))
-                        return true;
-                }
+                if (words.ToLower().Contains(bannedWord.Word.ToLower()))
+                    return true;
             }
+
             return false;
         }
     }
