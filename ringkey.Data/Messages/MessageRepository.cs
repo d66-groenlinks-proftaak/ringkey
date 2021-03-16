@@ -14,10 +14,27 @@ namespace ringkey.Data.Messages
         {
             return _dbContext.Message
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
-                .OrderByDescending(msg => msg.Created)
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenByDescending(msg => msg.Created)
                 .Take(10)
                 .Include(msg => msg.Author)
                 .ToList();
+        }
+
+        public bool IsGuest(string id)
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            return _dbContext.Message
+                .Include(msg => msg.Author)
+                .ThenInclude(user => user.Roles)
+                .FirstOrDefault(msg => msg.Id.ToString() == id)
+                .Author.Roles.Any(role => role.Type == RoleType.Guest);
+        }
+
+        public int GetReplyCount(string id)
+        {
+            return _dbContext.Message
+                .Count(msg => msg.Parent == id);
         }
 
         public List<MessageTag> GetCategories()

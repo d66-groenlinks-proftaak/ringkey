@@ -62,7 +62,8 @@ namespace ringkey.Logic.Messages
                                 Id = message.Id,
                                 Parent = message.Parent,
                                 Title = message.Title,
-                                Created = message.Created
+                                Created = message.Created,
+                                Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
                             });
                         else if (message.Type == MessageType.Reply)
                             await _hub.Clients.Group($"/thread/{message.Parent}").SendChild(new ThreadView()
@@ -72,7 +73,8 @@ namespace ringkey.Logic.Messages
                                 Content = message.Content,
                                 Id = message.Id,
                                 Parent = message.Parent,
-                                Created = message.Created
+                                Created = message.Created,
+                                Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
                             });;
                     }
                     
