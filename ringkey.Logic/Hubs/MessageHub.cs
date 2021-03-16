@@ -33,6 +33,14 @@ namespace ringkey.Logic.Hubs
             return base.OnConnectedAsync();
         }
 
+        public async Task RequestSortedList(MessageSortType type)
+        {
+            if(type == MessageSortType.New)
+                await Clients.Caller.SendThreads(_messageService.GetLatest(10));
+            if(type == MessageSortType.Old)
+                await Clients.Caller.SendThreads(_messageService.GetOldest(10));
+        }
+
         public async Task RequestUpdate()
         {
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));

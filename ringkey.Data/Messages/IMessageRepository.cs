@@ -8,6 +8,7 @@ namespace ringkey.Data.Messages
     public interface IMessageRepository : IRepository<Message>
     {
         List<Message> GetLatest(int amount);
+        List<Message> GetOldest(int amount);
         List<Message> GetReplies(string id);
         Message GetById(string id);
         List<Message> GetUnprocessed();

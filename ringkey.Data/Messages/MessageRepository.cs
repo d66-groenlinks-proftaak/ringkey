@@ -20,6 +20,17 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Author)
                 .ToList();
         }
+        
+        public List<Message> GetOldest(int amount)
+        {
+            return _dbContext.Message
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenBy(msg => msg.Created)
+                .Take(10)
+                .Include(msg => msg.Author)
+                .ToList();
+        }
 
         public bool IsGuest(string id)
         {
