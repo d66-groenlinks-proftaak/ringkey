@@ -20,6 +20,11 @@ namespace ringkey.Data.Messages
                 .ToList();
         }
 
+        public List<MessageTag> GetCategories()
+        {
+            return _dbContext.Tag.Where(tag => tag.Type == MessageTagType.Category).ToList();
+        }
+
         public List<Message> GetReplies(string id)
         {
             return _dbContext.Message
