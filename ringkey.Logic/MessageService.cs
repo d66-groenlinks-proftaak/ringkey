@@ -200,6 +200,31 @@ namespace ringkey.Logic
             
             return replies;
         }
+        
+        public List<ThreadView> GetTop(int amount)
+        {
+            List<Message> messages = _unitOfWork.Message.GetTop(amount);
+            List<ThreadView> replies = new List<ThreadView>();
+            
+            foreach(Message msg in messages)
+            {
+                replies.Add(new ThreadView()
+                {
+                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    AuthorId = msg.Author.Id.ToString(),
+                    Content = msg.Content,
+                    Id = msg.Id,
+                    Parent = msg.Parent,
+                    Title = msg.Title,
+                    Created = msg.Created,
+                    Pinned = msg.Pinned,
+                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
+                });
+            }
+            
+            return replies;
+        }
 
         public List<ThreadView> GetMessageReplies(string id)
         {

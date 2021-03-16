@@ -16,6 +16,7 @@ namespace ringkey.Common.Models.Messages
         public long Created { get; set; }
         public bool Processed { get; set; }
         public bool Pinned { get; set; }
+        public int Views { get; set; }
         public List<MessageTag> Tags { get; set; } 
         public List<Report> Reports { get; set; }
     }

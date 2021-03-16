@@ -80,6 +80,9 @@ namespace ringkey.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");

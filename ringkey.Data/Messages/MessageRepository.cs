@@ -31,6 +31,19 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Author)
                 .ToList();
         }
+        
+        public List<Message> GetTop(int amount)
+        {
+            long lastSeven = DateTimeOffset.Now.AddDays(-7).ToUnixTimeMilliseconds();
+            
+            return _dbContext.Message
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven)
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenByDescending(msg => msg.Views)
+                .Take(10)
+                .Include(msg => msg.Author)
+                .ToList();
+        }
 
         public bool IsGuest(string id)
         {
@@ -64,7 +77,14 @@ namespace ringkey.Data.Messages
 
         public Message GetById(string id)
         {
-            return _dbContext.Message.Include(msg => msg.Author).FirstOrDefault(msg => msg.Id.ToString() == id && msg.Processed);
+            Message msg = _dbContext.Message.Include(msg => msg.Author).FirstOrDefault(msg => msg.Id.ToString() == id && msg.Processed);
+
+            if (msg != null)
+                msg.Views++;
+
+            _dbContext.SaveChanges();
+
+            return msg;
         }
 
         public List<Message> GetUnprocessed()
