@@ -23,26 +23,36 @@ namespace ringkey.Logic
             MessageErrors error;
             Account account = _unitOfWork.Account.GetByEmail(message.Email);
 
-            if (account != null)
+            if (authenticated != null)
             {
-                error = Messages.Utility.CheckMessage(message, false);
-                
-                if (account.Roles.Any(role => role.Type != RoleType.Guest))
-                {
-                    if (authenticated != null && authenticated.Id == account.Id)
-                    {
-
-                    }
-                    else
-                        return MessageErrors.EmailAlreadyOwned;
-                }
+                account = _unitOfWork.Account.GetById(authenticated.Id.ToString());
             }
             else
             {
-                error = Messages.Utility.CheckMessage(message);
-                
-                if (authenticated == null)
+                if (account != null)
                 {
+                    error = Messages.Utility.CheckMessage(message, false);
+
+                    if (error != MessageErrors.NoError)
+                        return error;
+
+                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    {
+                        if (authenticated != null && authenticated.Id == account.Id)
+                        {
+
+                        }
+                        else
+                            return MessageErrors.EmailAlreadyOwned;
+                    }
+                }
+                else
+                {
+                    error = Messages.Utility.CheckMessage(message);
+                    
+                    if (error != MessageErrors.NoError)
+                        return error;
+
                     account = new Account()
                     {
                         Email = message.Email,
@@ -59,10 +69,6 @@ namespace ringkey.Logic
                     };
 
                     _unitOfWork.Account.Add(account);
-                }
-                else
-                {
-                    account = _unitOfWork.Account.GetById(authenticated.Id.ToString());
                 }
             }
 
@@ -92,24 +98,39 @@ namespace ringkey.Logic
 
         public MessageErrors CreateReply(NewReply message, Account authenticated)
         {
+            MessageErrors error;
             Account account = _unitOfWork.Account.GetByEmail(message.Email);
 
-            if (account != null)
+            if (authenticated != null)
             {
-                if (account.Roles.Any(role => role.Type != RoleType.Guest))
-                {
-                    if (authenticated != null && authenticated.Id == account.Id)
-                    {
-
-                    }
-                    else
-                        return MessageErrors.EmailAlreadyOwned;
-                }
+                account = _unitOfWork.Account.GetById(authenticated.Id.ToString());
             }
             else
             {
-                if (authenticated == null)
+                if (account != null)
                 {
+                    error = Messages.Utility.CheckMessage(message, false);
+
+                    if (error != MessageErrors.NoError)
+                        return error;
+
+                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    {
+                        if (authenticated != null && authenticated.Id == account.Id)
+                        {
+
+                        }
+                        else
+                            return MessageErrors.EmailAlreadyOwned;
+                    }
+                }
+                else
+                {
+                    error = Messages.Utility.CheckMessage(message);
+                    
+                    if (error != MessageErrors.NoError)
+                        return error;
+
                     account = new Account()
                     {
                         Email = message.Email,
@@ -127,20 +148,16 @@ namespace ringkey.Logic
 
                     _unitOfWork.Account.Add(account);
                 }
-                else
-                {
-                    account = _unitOfWork.Account.GetById(authenticated.Id.ToString());
-                }
             }
-
 
             Message newMessage = new Message()
             {
                 Author = account,
                 Content = Messages.Utility.SanitizeContent(message.Content),
                 Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
-                Parent = message.Parent,
                 Type = MessageType.Reply,
+                Parent = message.Parent,
+                Title = null,
                 Processed = false,
                 Pinned = false
             };

@@ -30,7 +30,7 @@ namespace ringkey.Logic.Messages
             return false;
         } 
 
-        public static MessageErrors CheckMessage(NewMessage message, bool guest = false)
+        public static MessageErrors CheckMessage(INewMessage message, bool guest = false)
         {
             if (message.Content.Length < 10)
                 return MessageErrors.ContentTooShort;
