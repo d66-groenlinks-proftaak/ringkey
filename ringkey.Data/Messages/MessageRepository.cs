@@ -16,6 +16,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
+                .Include(msg => msg.Parent)
                 .Take(10)
                 .Include(msg => msg.Author)
                 .ToList();
@@ -27,6 +28,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
+                .Include(msg => msg.Parent)
                 .Take(10)
                 .Include(msg => msg.Author)
                 .ToList();
@@ -40,6 +42,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
+                .Include(msg => msg.Parent)
                 .Take(10)
                 .Include(msg => msg.Author)
                 .ToList();
@@ -58,7 +61,7 @@ namespace ringkey.Data.Messages
         public int GetReplyCount(string id)
         {
             return _dbContext.Message
-                .Count(msg => msg.Parent == id);
+                .Count(msg => msg.Parent == _dbContext.Message.FirstOrDefault(_msg => _msg.Id.ToString() == id));
         }
 
         public List<MessageTag> GetCategories()
@@ -69,15 +72,19 @@ namespace ringkey.Data.Messages
         public List<Message> GetReplies(string id)
         {
             return _dbContext.Message
-                .Where(msg => msg.Type == MessageType.Reply && msg.Parent == id && msg.Processed)
+                .Where(msg => msg.Type == MessageType.Reply && msg.Parent == _dbContext.Message.FirstOrDefault(_msg => _msg.Id.ToString() == id) && msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
+                .Include(msg => msg.Parent)
                 .ToList();
         }
 
         public Message GetById(string id)
         {
-            Message msg = _dbContext.Message.Include(msg => msg.Author).FirstOrDefault(msg => msg.Id.ToString() == id && msg.Processed);
+            Message msg = _dbContext.Message
+                .Include(msg => msg.Author)
+                .Include(msg => msg.Children)
+                .FirstOrDefault(msg => msg.Id.ToString() == id && msg.Processed);
 
             if (msg != null)
                 msg.Views++;
@@ -93,6 +100,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => !msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
+                .Include(msg => msg.Parent)
                 .ToList();
         }
 

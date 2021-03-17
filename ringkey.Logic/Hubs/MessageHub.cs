@@ -161,7 +161,7 @@ namespace ringkey.Logic.Hubs
                     AuthorId = message.Author.Id.ToString(),
                     Content = message.Content,
                     Id = message.Id,
-                    Parent = message.Parent,
+                    Parent = message.Parent?.Id.ToString(),
                     Title = message.Title,
                     Created = message.Created
                 },

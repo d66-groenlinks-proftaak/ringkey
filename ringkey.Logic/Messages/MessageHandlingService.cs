@@ -64,19 +64,19 @@ namespace ringkey.Logic.Messages
                                 Content = message.Content,
                                 AuthorId = message.Author.Id.ToString(),
                                 Id = message.Id,
-                                Parent = message.Parent,
+                                Parent =  message.Parent?.Id.ToString(),
                                 Title = message.Title,
                                 Created = message.Created,
                                 Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
                             });
                         else if (message.Type == MessageType.Reply)
-                            await _hub.Clients.Group($"/thread/{message.Parent}").SendChild(new ThreadView()
+                            await _hub.Clients.Group($"/thread/{message.Parent?.Id.ToString()}").SendChild(new ThreadView()
                             {
                                 Author = $"{message.Author.FirstName} {message.Author.LastName}",
                                 AuthorId = message.Author.Id.ToString(),
                                 Content = message.Content,
                                 Id = message.Id,
-                                Parent = message.Parent,
+                                Parent =  message.Parent?.Id.ToString(),
                                 Created = message.Created,
                                 Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
                             });;

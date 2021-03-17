@@ -150,13 +150,18 @@ namespace ringkey.Logic
                 }
             }
 
+            Message parent = _unitOfWork.Message.GetById(message.Parent);
+
+            if (parent == null)
+                return MessageErrors.TitleTooShort;
+
             Message newMessage = new Message()
             {
                 Author = account,
                 Content = Messages.Utility.SanitizeContent(message.Content),
                 Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Type = MessageType.Reply,
-                Parent = message.Parent,
+                Parent = parent,
                 Title = null,
                 Processed = false,
                 Pinned = false
@@ -182,7 +187,7 @@ namespace ringkey.Logic
                     AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
-                    Parent = msg.Parent,
+                    Parent = msg.Parent?.Id.ToString(),
                     Title = msg.Title,
                     Created = msg.Created,
                     Pinned = msg.Pinned,
@@ -207,7 +212,7 @@ namespace ringkey.Logic
                     AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
-                    Parent = msg.Parent,
+                    Parent = msg.Parent?.Id.ToString(),
                     Title = msg.Title,
                     Created = msg.Created,
                     Pinned = msg.Pinned,
@@ -232,7 +237,7 @@ namespace ringkey.Logic
                     AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
-                    Parent = msg.Parent,
+                    Parent = msg.Parent?.Id.ToString(),
                     Title = msg.Title,
                     Created = msg.Created,
                     Pinned = msg.Pinned,
@@ -257,7 +262,7 @@ namespace ringkey.Logic
                     AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
-                    Parent = msg.Parent,
+                    Parent = msg.Parent?.Id.ToString(),
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
