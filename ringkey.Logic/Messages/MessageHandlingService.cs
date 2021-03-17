@@ -19,9 +19,9 @@ namespace ringkey.Logic.Messages
         private UnitOfWork _unitOfWork;
         private IHubContext<MessageHub, IMessageClient> _hub;
         private IServiceScopeFactory _services;
-        private List<BannedWord> bannedWords;
+        private List<string> _bannedWords;
 
-        private CharCombination[] charCombinations = { new CharCombination('e', '3'), new CharCombination('a', '4'), new CharCombination('i', '1'), new CharCombination('l', '1'), new CharCombination('o', '0'), new CharCombination('b', '8'), new CharCombination('g', '9'), new CharCombination('a', '@'), new CharCombination('a', '*'), new CharCombination('e', '*'), new CharCombination('o', '*'), new CharCombination('u', '*'), new CharCombination('i', '*'), new CharCombination('i', 'l'), new CharCombination('l', 'i')};
+        private CharCombination[] _charCombinations = { new CharCombination('e', '3'), new CharCombination('a', '4'), new CharCombination('i', '1'), new CharCombination('l', '1'), new CharCombination('o', '0'), new CharCombination('b', '8'), new CharCombination('g', '9'), new CharCombination('a', '@'), new CharCombination('a', '*'), new CharCombination('e', '*'), new CharCombination('o', '*'), new CharCombination('u', '*'), new CharCombination('i', '*')};
 
         public MessageHandlingService(IServiceScopeFactory services)
         {
@@ -33,7 +33,12 @@ namespace ringkey.Logic.Messages
             using (var scope = _services.CreateScope())
             {
                 _unitOfWork = scope.ServiceProvider.GetService<UnitOfWork>();
-                bannedWords = _unitOfWork.BannedWords.GetAllBannedWords();
+                List<BannedWord> tempbannedWords = _unitOfWork.BannedWords.GetAllBannedWords();
+                _bannedWords = new List<string>();
+                foreach(BannedWord bannedWord in tempbannedWords)
+                {
+                    _bannedWords.AddRange(leetSpeak(bannedWord.Word));
+                }
             }
             
             while (!cancellationToken.IsCancellationRequested)
@@ -99,14 +104,10 @@ namespace ringkey.Logic.Messages
             words = words.Replace("_", "");
             words = words.Replace("-", "");
 
-            foreach (BannedWord bannedWord in bannedWords)
+            foreach (string bannedWord in _bannedWords)
             {
-                List<string> allBannedWords = leetSpeak(bannedWord.Word);
-                foreach(string word in allBannedWords)
-                {
-                    if (words.ToLower().Contains(word.ToLower()))
-                        return true;
-                }
+                if (words.ToLower().Contains(bannedWord.ToLower()))
+                    return true;
             }
 
             return false;
@@ -117,23 +118,28 @@ namespace ringkey.Logic.Messages
             List<string> output = new List<string>();
             output.Add(input);
 
-            foreach (CharCombination combination in charCombinations)
+            foreach (CharCombination charCombination in _charCombinations)
             {
-                if (input.Contains(combination.Value))
+                char[] letterArray = input.ToCharArray();
+                for (int i = 0; i < letterArray.Length; i++)
                 {
-                    string temp = input.Replace(combination.Value, combination.ReplaceValue);
-                    if (output.Find(x => x.Contains(temp)) == null)
-                        output.Add(temp);
-
-                    List<string> templist = leetSpeak(temp);
-                    foreach (string tempval in templist)
+                    if (letterArray[i] == charCombination.Value)
                     {
-                        if (output.Find(x => x.Contains(tempval)) == null)
-                            output.Add(tempval);
+                        letterArray[i] = charCombination.ReplaceValue;
+                        if (output.Find(x => x.Contains(new string(letterArray))) == null)
+                        {
+                            output.Add(new string(letterArray));
+                            List<string> templist = leetSpeak(new string(letterArray));
+                            foreach (string tempval in templist)
+                            {
+                                if (output.Find(x => x.Contains(tempval)) == null)
+                                    output.Add(tempval);
+                            }
+                        }
+                        letterArray[i] = charCombination.Value;
                     }
                 }
             }
-
             return output;
         }
     }
