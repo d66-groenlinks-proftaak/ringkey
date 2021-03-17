@@ -249,6 +249,24 @@ namespace ringkey.Logic
             return replies;
         }
 
+        public List<ThreadView> GetChildrenReplies(List<Message> messages, string parentId)
+        {
+            return messages
+                .Where(c => c.Parent?.Id.ToString() == parentId)
+                .Select(c => new ThreadView()
+                {
+                    Author = $"{c.Author.FirstName} {c.Author.LastName}",
+                    AuthorId = c.Author.Id.ToString(),
+                    Content = c.Content,
+                    Id = c.Id,
+                    Parent = c.Parent?.Id.ToString(),
+                    Created = c.Created,
+                    Pinned = c.Pinned,
+                    Guest = _unitOfWork.Message.IsGuest(c.Id.ToString()),
+                    ReplyContent = GetChildrenReplies(_unitOfWork.Message?.GetById(c.Id.ToString())?.Children, c.Id.ToString())?.OrderByDescending(msg => msg.Created).ToList()
+                }).ToList();
+        }
+
         public List<ThreadView> GetMessageReplies(string id)
         {
             List<Message> messages = _unitOfWork.Message.GetReplies(id);
@@ -266,6 +284,7 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
+                    ReplyContent = GetChildrenReplies(msg.Children, msg.Id.ToString()).OrderByDescending(_msg => _msg.Created).ToList()
                 });
             }
             

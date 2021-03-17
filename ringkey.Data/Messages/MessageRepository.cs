@@ -76,15 +76,18 @@ namespace ringkey.Data.Messages
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
                 .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
+                .ThenInclude(msg => msg.Children)
                 .ToList();
         }
 
-        public Message GetById(string id)
+        public Message GetById(string id, bool requiresProcessed = true)
         {
             Message msg = _dbContext.Message
                 .Include(msg => msg.Author)
                 .Include(msg => msg.Children)
-                .FirstOrDefault(msg => msg.Id.ToString() == id && msg.Processed);
+                .Include(msg => msg.Parent)
+                .FirstOrDefault(msg => msg.Id.ToString() == id && (!requiresProcessed || msg.Processed));
 
             if (msg != null)
                 msg.Views++;

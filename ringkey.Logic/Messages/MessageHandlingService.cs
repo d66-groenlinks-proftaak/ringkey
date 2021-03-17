@@ -27,6 +27,16 @@ namespace ringkey.Logic.Messages
         {
             _services = services;
         }
+        
+        public Message GetTopParent(string id)
+        {
+            Message msg = _unitOfWork.Message.GetById(id, false);
+
+            if (msg.Parent == null)
+                return msg;
+
+            return GetTopParent(msg.Parent.Id.ToString());
+        }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -70,16 +80,22 @@ namespace ringkey.Logic.Messages
                                 Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
                             });
                         else if (message.Type == MessageType.Reply)
-                            await _hub.Clients.Group($"/thread/{message.Parent?.Id.ToString()}").SendChild(new ThreadView()
-                            {
-                                Author = $"{message.Author.FirstName} {message.Author.LastName}",
-                                AuthorId = message.Author.Id.ToString(),
-                                Content = message.Content,
-                                Id = message.Id,
-                                Parent =  message.Parent?.Id.ToString(),
-                                Created = message.Created,
-                                Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
-                            });;
+                        {
+                            string top = GetTopParent(message.Id.ToString()).Id.ToString();
+                            
+                            await _hub.Clients.Group($"/thread/{GetTopParent(message.Id.ToString()).Id.ToString()}")
+                                .SendChild(new ThreadView()
+                                {
+                                    Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                                    AuthorId = message.Author.Id.ToString(),
+                                    Content = message.Content,
+                                    Id = message.Id,
+                                    Parent = message.Parent?.Id.ToString(),
+                                    Created = message.Created,
+                                    Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
+                                });
+                            ;
+                        }
                     }
                     
                     _unitOfWork.SaveChanges();

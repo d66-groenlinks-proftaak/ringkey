@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ringkey.Common.Models.Messages
@@ -16,5 +17,7 @@ namespace ringkey.Common.Models.Messages
         public int Replies { get; set; }
         public bool Pinned { get; set; }
         public bool Guest { get; set; }
+        
+        public List<ThreadView> ReplyContent { get; set; }
     }
 }
