@@ -13,5 +13,8 @@ namespace ringkey.Common.Models.Messages
         public string Content { get; set; }
         public string Parent { get; set; }
         public long Created { get; set; }
+        public int Replies { get; set; }
+        public bool Pinned { get; set; }
+        public bool Guest { get; set; }
     }
 }

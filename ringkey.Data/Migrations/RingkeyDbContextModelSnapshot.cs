@@ -68,6 +68,9 @@ namespace ringkey.Data.Migrations
                     b.Property<string>("Parent")
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("Pinned")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("Processed")
                         .HasColumnType("tinyint(1)");
 
@@ -77,11 +80,39 @@ namespace ringkey.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Message");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Messages.MessageTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("MessageId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Report", b =>
@@ -110,8 +141,9 @@ namespace ringkey.Data.Migrations
 
             modelBuilder.Entity("ringkey.Common.Models.Role", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("AccountId")
                         .HasColumnType("char(36)");
@@ -133,6 +165,15 @@ namespace ringkey.Data.Migrations
                         .HasForeignKey("AuthorId");
 
                     b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.Messages.MessageTag", b =>
+                {
+                    b.HasOne("ringkey.Common.Models.Messages.Message", "Message")
+                        .WithMany("Tags")
+                        .HasForeignKey("MessageId");
+
+                    b.Navigation("Message");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Report", b =>
@@ -171,6 +212,8 @@ namespace ringkey.Data.Migrations
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.Navigation("Reports");
+
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }
