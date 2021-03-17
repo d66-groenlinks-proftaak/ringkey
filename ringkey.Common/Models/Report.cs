@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ringkey.Common.Models.Messages;
-using ringkey.Common.Models.NewFolder;
 
 namespace ringkey.Common.Models
 {
