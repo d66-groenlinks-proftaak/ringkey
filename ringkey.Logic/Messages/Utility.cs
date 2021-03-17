@@ -13,7 +13,7 @@ namespace ringkey.Logic.Messages
     public static class Utility
     {
 
-        private static List<string> _allowedTags = new List<string> {"h1","h2", "italic", "a", "p", "br", "strong", "em", "span" };
+        private static List<string> _allowedTags = new List<string> {"h1","h2", "italic", "a", "p", "br", "strong", "em", "span", "blockquote" };
         private static List<string> _allowedSchemes = new List<string> { "http", "https" };
         private static List<string> _allowedAttributes = new List<string> { "href" };
         private static List<string> _allowedUriAttributes = new List<string> { "href" };
