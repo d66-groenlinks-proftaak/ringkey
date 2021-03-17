@@ -1,4 +1,5 @@
-﻿using ringkey.Common.Models.Messages;
+﻿using Ganss.XSS;
+using ringkey.Common.Models.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,18 @@ using System.Threading.Tasks;
 
 namespace ringkey.Logic.Messages
 {
-   
+
     public static class Utility
     {
+
+        private static List<string> _allowedTags = new List<string> {"h1","h2", "italic", "a", "p", "br", "strong", "em", "span" };
+        private static List<string> _allowedSchemes = new List<string> { "http", "https" };
+        private static List<string> _allowedAttributes = new List<string> { "href" };
+        private static List<string> _allowedUriAttributes = new List<string> { "href" };
+        private static List<string> _allowedCssProperties = new List<string> { "style" };
+
+        private static HtmlSanitizer _sanitizer = new HtmlSanitizer(_allowedTags, _allowedSchemes, _allowedAttributes, _allowedUriAttributes, _allowedCssProperties);
+
        public static bool IsValidEmail(string email)
         {
             Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
@@ -43,6 +53,11 @@ namespace ringkey.Logic.Messages
                 return MessageErrors.InvalidEmail;
 
             return MessageErrors.NoError;
+        }
+
+        public static string SanitizeContent(string content)
+        {
+            return _sanitizer.Sanitize(content);
         }
     }
 }

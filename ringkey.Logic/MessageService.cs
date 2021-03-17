@@ -69,7 +69,7 @@ namespace ringkey.Logic
             Message newMessage = new Message()
             {
                 Author = account,
-                Content = message.Content,
+                Content = Messages.Utility.SanitizeContent(message.Content),
                 Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Type = MessageType.Thread,
                 Title = message.Title,
@@ -133,10 +133,11 @@ namespace ringkey.Logic
                 }
             }
 
+
             Message newMessage = new Message()
             {
                 Author = account,
-                Content = message.Content,
+                Content = Messages.Utility.SanitizeContent(message.Content),
                 Created = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                 Parent = message.Parent,
                 Type = MessageType.Reply,
