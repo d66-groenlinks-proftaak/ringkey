@@ -183,34 +183,9 @@ namespace ringkey.Logic.Hubs
         /// <returns>the profile data to display in the browser</returns>
         public async Task GetProfile(string id)
         {
-            List<Dictionary<string, string>> profiles = new List<Dictionary<string, string>>();
+            Profile profile= _unitOfWork.Account.GetProfileById(id);
 
-            #region testing profiles - to be removed
-            Dictionary<string, string> profile1Data = new Dictionary<string, string>() {
-                { "id", "1" },
-                { "firstname", "" },
-                { "lastname", "Koppejan" },
-                { "email", "martijn.koppejan1@gmail.com" }
-            };
-
-            Dictionary<string, string> profile2Data = new Dictionary<string, string>() {
-                { "id", "asdf" },
-                { "firstname", "a" },
-                { "lastname", "bob" },
-                { "email", "xxx@xxx" }
-            };
-
-            profiles.Add(profile1Data);
-            profiles.Add(profile2Data);
-            #endregion
-
-            Dictionary<string, string> temp = null;
-            foreach (Dictionary<string, string> profile in profiles)
-            {
-                if (profile["id"].Equals(id)) temp = profile;
-            }
-
-            await Clients.Caller.SendProfile(temp);
+            await Clients.Caller.SendProfile(profile);
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using ringkey.Common.Models;
 using ringkey.Common.Models.Messages;
-using ringkey.Common.Models.NewFolder;
 
 namespace ringkey.Logic.Hubs
 {
@@ -13,7 +12,7 @@ namespace ringkey.Logic.Hubs
         Task SendThreadDetails(Thread thread);
         Task ConfirmReport(bool ReportConfirmation);
         Task SendChild(ThreadView message);
-        Task SendProfile(Dictionary<string, string> profile);
+        Task SendProfile(Profile profile);
         Task AuthenticateFailed(AccountError error);
         Task Authenticated(AuthenticateResponse authenticateResponse);
         Task MessageCreationError(MessageErrors error);

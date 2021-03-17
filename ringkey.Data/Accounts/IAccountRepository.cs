@@ -7,5 +7,6 @@ namespace ringkey.Data.Accounts
     {
         Account GetByEmail(string email);
         Account GetById(string id);
+        Profile GetProfileById(string id);
     }
 }
