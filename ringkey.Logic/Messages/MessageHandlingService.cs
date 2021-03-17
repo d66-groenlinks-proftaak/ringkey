@@ -21,8 +21,7 @@ namespace ringkey.Logic.Messages
         private IServiceScopeFactory _services;
         private List<BannedWord> bannedWords;
 
-        private CharCombination[] charCombinations = { new CharCombination('e', '3'), new CharCombination('a', '4'), new CharCombination('i', '1'), new CharCombination('l', '1'), new CharCombination('o', '0'), new CharCombination('b', '8'), new CharCombination('g', '9'), new CharCombination('a', '@'), };
-        private char[] alphabet = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+        private CharCombination[] charCombinations = { new CharCombination('e', '3'), new CharCombination('a', '4'), new CharCombination('i', '1'), new CharCombination('l', '1'), new CharCombination('o', '0'), new CharCombination('b', '8'), new CharCombination('g', '9'), new CharCombination('a', '@'), new CharCombination('a', '*'), new CharCombination('e', '*'), new CharCombination('o', '*'), new CharCombination('u', '*'), new CharCombination('i', '*'), new CharCombination('i', 'l'), new CharCombination('l', 'i')};
 
         public MessageHandlingService(IServiceScopeFactory services)
         {
@@ -115,21 +114,6 @@ namespace ringkey.Logic.Messages
         {
             List<string> output = new List<string>();
             output.Add(input);
-            if (input.Contains("*"))
-            {
-                foreach (char letter in alphabet)
-                {
-                    string temp = input.Replace('*', letter);
-                    if (output.Find(x => x == temp) == null)
-                        output.Add(temp);
-                    List<string> templist = leetSpeak(temp);
-                    foreach (string tempval in templist)
-                    {
-                        if (output.Find(x => x.Contains(tempval)) == null)
-                            output.Add(tempval);
-                    }
-                }
-            }
 
             foreach (CharCombination combination in charCombinations)
             {
