@@ -131,11 +131,25 @@ namespace ringkey.Logic.Hubs
 
         }
 
-        public async Task ReportMessage(NewReport report)
+        public async Task ReportMessage(NewReport newReport) // ur reported dude
         {
-            Console.WriteLine(report.MessageId);
-            Console.WriteLine(report.ReportMessage);
-            await Clients.Caller.ConfirmReport(true);
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account)Context.Items["account"];
+                Account newAccount = _unitOfWork.Account.GetById(account.Id.ToString());
+
+                Report report = new Report()
+                {
+                    AccountId = newAccount.Id.ToString(),
+                    Id = Guid.NewGuid(),
+                    MessageId = newReport.MessageId,
+                    ReportMessage = newReport.ReportMessage
+                };
+                _unitOfWork.Report.Add(report);
+                _unitOfWork.SaveChanges();
+                await Clients.Caller.ConfirmReport(true);
+            }
+            await Clients.Caller.ConfirmReport(false);
         }
 
         public async Task CreateReply(NewReply message)
