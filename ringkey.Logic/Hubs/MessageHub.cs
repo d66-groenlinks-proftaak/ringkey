@@ -169,6 +169,12 @@ namespace ringkey.Logic.Hubs
             });
         }
 
+        public async Task LoadSubReplies(string id)
+        {
+            List<ThreadView> newReplies = _messageService.GetNextReplies(id);
+            await Clients.Caller.SendChildren(newReplies);
+        }
+
 
         /// <summary>
         /// Retrieve profile data from database

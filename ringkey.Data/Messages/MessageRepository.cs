@@ -81,6 +81,22 @@ namespace ringkey.Data.Messages
                 .ToList();
         }
 
+        public List<Message> GetNextReplies(string id)
+        {
+            Message msg = GetById(id);
+
+            if (msg == null || msg.Parent == null)
+                return new List<Message>();
+            
+            List<Message> MessageList = _dbContext.Message
+                .Where(_msg => _msg.Created < msg.Created && _msg.Parent == msg.Parent)
+                .OrderByDescending(msg => msg.Created)
+                .Take(4)
+                .ToList();
+
+            return MessageList;
+        }
+
         public Message GetById(string id, bool requiresProcessed = true)
         {
             Message msg = _dbContext.Message

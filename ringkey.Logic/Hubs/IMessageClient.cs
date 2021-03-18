@@ -17,5 +17,6 @@ namespace ringkey.Logic.Hubs
         Task AuthenticateFailed(AccountError error);
         Task Authenticated(AuthenticateResponse authenticateResponse);
         Task MessageCreationError(MessageErrors error);
+        Task SendChildren(List<ThreadView> children);
     }
 }

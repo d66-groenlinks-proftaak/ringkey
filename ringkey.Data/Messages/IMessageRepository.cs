@@ -15,5 +15,6 @@ namespace ringkey.Data.Messages
         List<Message> GetUnprocessed();
         int GetReplyCount(string id);
         bool IsGuest(string id);
+        List<Message> GetNextReplies(string id);
     }
 }

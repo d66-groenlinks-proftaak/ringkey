@@ -16,6 +16,7 @@ namespace ringkey.Common.Models.Messages
         AuthorTooShort = 5,
         AuthorTooLong = 6,
         InvalidEmail = 7,
-        EmailAlreadyOwned = 8
+        EmailAlreadyOwned = 8,
+        CannotCreateSubReply = 9
     }
 }

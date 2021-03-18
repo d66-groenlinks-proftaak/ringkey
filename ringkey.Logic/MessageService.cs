@@ -96,6 +96,30 @@ namespace ringkey.Logic
             return _unitOfWork.Message.GetById(id);
         }
 
+        public List<ThreadView> GetNextReplies(string id)
+        {
+            Message parent = _unitOfWork.Message.GetById(id)?.Parent;
+            List<ThreadView> SendNew = new List<ThreadView>();
+
+            if (parent != null)
+            {
+                SendNew = _unitOfWork.Message.GetNextReplies(id).Select(msg => new ThreadView {
+                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    AuthorId = msg.Author.Id.ToString(),
+                    Content = msg.Content,
+                    Id = msg.Id,
+                    Parent = msg.Parent?.Id.ToString(),
+                    Title = msg.Title,
+                    Created = msg.Created,
+                    Pinned = msg.Pinned,
+                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
+                    Replies = 0
+                }).ToList();
+            }
+
+            return SendNew;
+        }
+
         public MessageErrors CreateReply(NewReply message, Account authenticated)
         {
             MessageErrors error;
@@ -151,9 +175,11 @@ namespace ringkey.Logic
             }
 
             Message parent = _unitOfWork.Message.GetById(message.Parent);
-
-            if (parent == null)
-                return MessageErrors.TitleTooShort;
+            if (parent.Type != MessageType.Thread)
+            {
+                if(parent.Parent == null || parent.Parent.Type != MessageType.Thread)
+                    return MessageErrors.CannotCreateSubReply;
+            }
 
             Message newMessage = new Message()
             {
@@ -249,24 +275,6 @@ namespace ringkey.Logic
             return replies;
         }
 
-        public List<ThreadView> GetChildrenReplies(List<Message> messages, string parentId)
-        {
-            return messages
-                .Where(c => c.Parent?.Id.ToString() == parentId)
-                .Select(c => new ThreadView()
-                {
-                    Author = $"{c.Author.FirstName} {c.Author.LastName}",
-                    AuthorId = c.Author.Id.ToString(),
-                    Content = c.Content,
-                    Id = c.Id,
-                    Parent = c.Parent?.Id.ToString(),
-                    Created = c.Created,
-                    Pinned = c.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(c.Id.ToString()),
-                    ReplyContent = GetChildrenReplies(_unitOfWork.Message?.GetById(c.Id.ToString())?.Children, c.Id.ToString())?.OrderByDescending(msg => msg.Created).ToList()
-                }).ToList();
-        }
-
         public List<ThreadView> GetMessageReplies(string id)
         {
             List<Message> messages = _unitOfWork.Message.GetReplies(id);
@@ -284,7 +292,19 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    ReplyContent = GetChildrenReplies(msg.Children, msg.Id.ToString()).OrderByDescending(_msg => _msg.Created).ToList()
+                    ReplyContent = msg.Children.OrderByDescending(msg => msg.Created).Take(3).Select(c => new ThreadView()
+                    {
+                        Author = $"{c.Author.FirstName} {c.Author.LastName}",
+                        AuthorId = c.Author.Id.ToString(),
+                        Content = c.Content,
+                        Id = c.Id,
+                        Parent = c.Parent?.Id.ToString(),
+                        Created = c.Created,
+                        Pinned = c.Pinned,
+                        Guest = _unitOfWork.Message.IsGuest(c.Id.ToString()),
+                        ReplyContent = new List<ThreadView>()
+                    }).ToList(),
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
                 });
             }
             
