@@ -140,9 +140,9 @@ namespace ringkey.Logic.Hubs
 
                 Report report = new Report()
                 {
-                    AccountId = newAccount.Id.ToString(),
+                    Account = newAccount,
                     Id = Guid.NewGuid(),
-                    MessageId = newReport.MessageId,
+                    Message = _unitOfWork.Message.GetById(newReport.MessageId),
                     ReportMessage = newReport.ReportMessage
                 };
                 _unitOfWork.Report.Add(report);
