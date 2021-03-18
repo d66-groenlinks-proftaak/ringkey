@@ -131,8 +131,10 @@ namespace ringkey.Logic.Hubs
 
         }
 
-        public async Task ReportMessage(Report report)
+        public async Task ReportMessage(NewReport report)
         {
+            Console.WriteLine(report.MessageId);
+            Console.WriteLine(report.ReportMessage);
             await Clients.Caller.ConfirmReport(true);
         }
 
