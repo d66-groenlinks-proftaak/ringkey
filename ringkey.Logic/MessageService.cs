@@ -292,18 +292,7 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    ReplyContent = msg.Children.OrderByDescending(msg => msg.Created).Take(3).Select(c => new ThreadView()
-                    {
-                        Author = $"{c.Author.FirstName} {c.Author.LastName}",
-                        AuthorId = c.Author.Id.ToString(),
-                        Content = c.Content,
-                        Id = c.Id,
-                        Parent = c.Parent?.Id.ToString(),
-                        Created = c.Created,
-                        Pinned = c.Pinned,
-                        Guest = _unitOfWork.Message.IsGuest(c.Id.ToString()),
-                        ReplyContent = new List<ThreadView>()
-                    }).ToList(),
+                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
                     Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
                 });
             }

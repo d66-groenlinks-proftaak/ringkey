@@ -71,14 +71,36 @@ namespace ringkey.Data.Messages
 
         public List<Message> GetReplies(string id)
         {
-            return _dbContext.Message
+            List<Message> messages = _dbContext.Message
                 .Where(msg => msg.Type == MessageType.Reply && msg.Parent == _dbContext.Message.FirstOrDefault(_msg => _msg.Id.ToString() == id) && msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
                 .Include(msg => msg.Parent)
-                .Include(msg => msg.Children)
-                .ThenInclude(msg => msg.Children)
                 .ToList();
+
+            return messages;
+        }
+
+        public List<ThreadView> GetReplyChildren(string id)
+        {
+            return _dbContext.Message
+                .Where(msg =>
+                    msg.Type == MessageType.Reply &&
+                    msg.Parent.Id.ToString() == id)
+                .OrderByDescending(msg => msg.Created)
+                .Take(3)
+                .Include(msg => msg.Author).Select(c => new ThreadView()
+                {
+                    Author = $"{c.Author.FirstName} {c.Author.LastName}",
+                    AuthorId = c.Author.Id.ToString(),
+                    Content = c.Content,
+                    Id = c.Id,
+                    Parent = c.Parent.Id.ToString(),
+                    Created = c.Created,
+                    Pinned = c.Pinned,
+                    Guest = false,
+                    ReplyContent = new List<ThreadView>()
+                }).ToList();
         }
 
         public List<Message> GetNextReplies(string id)
