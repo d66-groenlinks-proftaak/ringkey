@@ -19,5 +19,6 @@ namespace ringkey.Common.Models.Messages
         public bool Guest { get; set; }
         
         public List<ThreadView> ReplyContent { get; set; }
+        public List<Attachment> Attachments { get; set; }
     }
 }

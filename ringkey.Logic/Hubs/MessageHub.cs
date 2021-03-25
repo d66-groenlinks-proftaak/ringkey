@@ -166,7 +166,8 @@ namespace ringkey.Logic.Hubs
                     Id = message.Id,
                     Parent = message.Parent?.Id.ToString(),
                     Title = message.Title,
-                    Created = message.Created
+                    Created = message.Created,
+                    Attachments = message.Attachments
                 },
                 Children = _messageService.GetMessageReplies(id)
             });

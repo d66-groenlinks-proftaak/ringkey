@@ -27,31 +27,41 @@ namespace ringkey.Controllers
         {
             Account acc = _accountService.GetByToken(message.Token);
             MessageErrors error;
-            
-            if(acc != null)
-                error = _messageService.CreateMessage(message, acc);
-            else
-                error = _messageService.CreateMessage(message, null);
 
-            Console.WriteLine(error);
-
-            if (error != MessageErrors.NoError)
-            {
-                return BadRequest(error);
-            }
+            List<Attachment> Attachments = new List<Attachment>();
             
             foreach (var file in Request.Form.Files)
             {
+                Guid Guid = Guid.NewGuid();
+                
                 if (file.Length > 0 && file.Length < 2000000)
                 {
-                    var filePath = Path.GetTempFileName();
-                    Console.WriteLine(filePath);
+                    var fileName = Path.GetFileName(Guid.ToString() + "_" + file.Name);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
                     using (var stream = System.IO.File.Create(filePath))
                     {
                         await file.CopyToAsync(stream);
+                        Attachments.Add(new Attachment()
+                        {
+                            Id = Guid,
+                            Name = file.Name,
+                            Type = "image"
+                        });
+                        
+                        stream.Close();
                     }
                 }
+            }
+            
+            if(acc != null)
+                error = _messageService.CreateMessage(message, acc, Attachments);
+            else
+                error = _messageService.CreateMessage(message, null, Attachments);
+
+            if (error != MessageErrors.NoError)
+            {
+                return BadRequest(error);
             }
             
             return new OkResult();

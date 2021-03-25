@@ -18,7 +18,7 @@ namespace ringkey.Logic
             _unitOfWork = unitOfWork;
             }
 
-        public MessageErrors CreateMessage(NewMessage message, Account authenticated)
+        public MessageErrors CreateMessage(NewMessage message, Account authenticated, List<Attachment> attachments)
         {
             MessageErrors error;
             Account account = _unitOfWork.Account.GetByEmail(message.Email);
@@ -80,7 +80,8 @@ namespace ringkey.Logic
                 Type = MessageType.Thread,
                 Title = message.Title,
                 Processed = false,
-                Pinned = false
+                Pinned = false,
+                Attachments = attachments
             };
 
             _unitOfWork.Message.Add(newMessage);

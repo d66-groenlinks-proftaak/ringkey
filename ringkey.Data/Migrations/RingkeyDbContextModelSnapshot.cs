@@ -50,6 +50,28 @@ namespace ringkey.Data.Migrations
                     b.ToTable("BannedWords");
                 });
 
+            modelBuilder.Entity("ringkey.Common.Models.Messages.Attachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("MessageId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("Attachment");
+                });
+
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.Property<Guid>("Id")
@@ -160,6 +182,13 @@ namespace ringkey.Data.Migrations
                     b.ToTable("Role");
                 });
 
+            modelBuilder.Entity("ringkey.Common.Models.Messages.Attachment", b =>
+                {
+                    b.HasOne("ringkey.Common.Models.Messages.Message", null)
+                        .WithMany("Attachments")
+                        .HasForeignKey("MessageId");
+                });
+
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.HasOne("ringkey.Common.Models.Account", "Author")
@@ -219,6 +248,8 @@ namespace ringkey.Data.Migrations
 
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
+                    b.Navigation("Attachments");
+
                     b.Navigation("Children");
 
                     b.Navigation("Reports");
