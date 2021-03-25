@@ -152,6 +152,11 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.ConfirmReport(false);
         }
 
+        public async Task CreateRole()
+        {
+
+        }
+
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;

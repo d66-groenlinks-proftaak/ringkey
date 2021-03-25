@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ringkey.Common.Models.Accounts;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ringkey.Common.Models
@@ -7,8 +9,8 @@ namespace ringkey.Common.Models
     {
         [Key]
         public Guid Id { get; set; }
-        
-        public RoleType Type { get; set; }
+        public string Name { get; set; }
         public Account Account { get; set; }
+        public List<Permission> Permissions { get; set; }
     }
 }
