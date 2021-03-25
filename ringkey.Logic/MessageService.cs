@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
 using ringkey.Logic.Messages;
@@ -36,7 +37,7 @@ namespace ringkey.Logic
                     if (error != MessageErrors.NoError)
                         return error;
 
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (account.Roles.Any(role => role.Name != "Guest"))
                     {
                         if (authenticated != null && authenticated.Id == account.Id)
                         {
@@ -59,12 +60,9 @@ namespace ringkey.Logic
                         Password = "",
                         FirstName = message.Author,
                         LastName = "",
-                        Roles = new List<Role>()
-                        {
-                            new Role()
-                            {
-                                Type = RoleType.Guest
-                            }
+                        Roles = new List<Role>() 
+                        { 
+                            _unitOfWork.Role.GetByName("Guest")
                         }
                     };
 
@@ -139,7 +137,7 @@ namespace ringkey.Logic
                     if (error != MessageErrors.NoError)
                         return error;
 
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (account.Roles.Any(role => role.Name != "Guest"))
                     {
                         if (authenticated != null && authenticated.Id == account.Id)
                         {
@@ -164,10 +162,7 @@ namespace ringkey.Logic
                         LastName = "",
                         Roles = new List<Role>()
                         {
-                            new Role()
-                            {
-                                Type = RoleType.Guest
-                            }
+                            _unitOfWork.Role.GetByName("Guest")
                         }
                     };
 

@@ -10,7 +10,7 @@ namespace ringkey.Common.Models
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Account Account { get; set; }
+        public List<Account> Account { get; set; }
         public List<Permission> Permissions { get; set; }
     }
 }

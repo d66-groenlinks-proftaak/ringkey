@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ringkey.Logic.Hubs;
+using ringkey.Common.Models.Accounts;
+using ringkey.Logic.Roles;
 
 namespace ringkey.Logic.Messages
 {
@@ -50,7 +52,9 @@ namespace ringkey.Logic.Messages
                     _bannedWords.AddRange(leetSpeak(bannedWord.Word));
                 }
             }
-            
+
+            DefaultRoles.CheckAllDefaultRoles(_unitOfWork);
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 using (var scope = _services.CreateScope()) {

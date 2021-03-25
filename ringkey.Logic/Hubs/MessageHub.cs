@@ -8,6 +8,8 @@ using ringkey.Common.Models;
 using ringkey.Data;
 using ringkey.Logic.Accounts;
 using ringkey.Logic.Messages;
+using ringkey.Common.Models.Accounts;
+using ringkey.Common.Models.Roles;
 
 namespace ringkey.Logic.Hubs
 {
@@ -139,9 +141,28 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.ConfirmReport(false);
         }
 
-        public async Task CreateRole()
+        public async Task CreateRole(NewRole newRole)
         {
+            List<Permission> perms = new List<Permission>();
+            foreach (NewPermission perm in newRole.Permissions)
+            {
+                perms.Add(new Permission()
+                {
+                    Perm = (Permissions)perm.Code
+                });
+            }
 
+            if(_unitOfWork.Role.GetByName(newRole.Name) == null)
+            {
+                Role role = new Role()
+                {
+                    Name = newRole.Name,
+                    Permissions = perms
+                };
+                _unitOfWork.Role.Add(role);
+                _unitOfWork.SaveChanges();
+            }
+        
         }
 
         public async Task CreateReply(NewReply message)

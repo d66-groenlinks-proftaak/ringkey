@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
 
 namespace ringkey.Data.Messages
@@ -55,7 +56,7 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Author)
                 .ThenInclude(user => user.Roles)
                 .FirstOrDefault(msg => msg.Id.ToString() == id)
-                .Author.Roles.Any(role => role.Type == RoleType.Guest);
+                .Author.Roles.Any(role => role.Name == "Guest");
         }
 
         public int GetReplyCount(string id)
