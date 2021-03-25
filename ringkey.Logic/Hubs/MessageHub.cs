@@ -58,20 +58,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task CreateMessage(NewMessage message)
         {
-            MessageErrors error;
             
-            if(Context.Items.ContainsKey("account"))
-                error = _messageService.CreateMessage(message, (Account)Context.Items["account"]);
-            else
-                error = _messageService.CreateMessage(message, null);
-
-            Console.WriteLine(error);
-
-            if (error != MessageErrors.NoError)
-            {
-                Console.WriteLine("Send error!");
-                await Clients.Caller.MessageCreationError(error);
-            }
         }
 
         public async Task Authenticate(string token)
