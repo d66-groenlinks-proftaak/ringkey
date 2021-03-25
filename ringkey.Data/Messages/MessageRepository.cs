@@ -125,6 +125,7 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Author)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
+                .Include(msg => msg.Attachments)
                 .FirstOrDefault(msg => msg.Id.ToString() == id && (!requiresProcessed || msg.Processed));
 
             if (msg != null)

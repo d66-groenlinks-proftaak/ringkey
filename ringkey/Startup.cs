@@ -69,6 +69,8 @@ namespace ringkey
 
             app.UseAuthorization();
 
+            app.UseStaticFiles();
+
             app.UseCors(builder =>
             {
                 builder.AllowAnyHeader()

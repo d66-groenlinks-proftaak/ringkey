@@ -19,5 +19,6 @@ namespace ringkey.Common.Models.Messages
         public List<Message> Children { get; set; }
         public List<MessageTag> Tags { get; set; } 
         public List<Report> Reports { get; set; }
+        public List<Attachment> Attachments { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace ringkey.Common.Models.Messages
         public long Created { get; set; }
         public string Email { get; set; }
         public string Author { get; set; }
+        public string Token { get; set; }
     }
 }
