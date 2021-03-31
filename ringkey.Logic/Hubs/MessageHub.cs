@@ -53,11 +53,6 @@ namespace ringkey.Logic.Hubs
             Context.Items["page"] = $"{page}";
         }
 
-        public async Task CreateMessage(NewMessage message)
-        {
-            
-        }
-
         public async Task Authenticate(string token)
         {
             Account acc = _accountService.GetByToken(token);
