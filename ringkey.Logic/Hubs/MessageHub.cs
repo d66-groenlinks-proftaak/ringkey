@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
 using ringkey.Common.Models;
 using ringkey.Data;
+using ringkey.Logic;
 using ringkey.Logic.Accounts;
 using ringkey.Logic.Messages;
+using Utility = ringkey.Logic.Accounts.Utility;
 
 namespace ringkey.Logic.Hubs
 {
@@ -35,12 +37,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestSortedList(MessageSortType type)
         {
-            if(type == MessageSortType.New)
-                await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-            if(type == MessageSortType.Top)
-                await Clients.Caller.SendThreads(_messageService.GetTop(10));
-            if(type == MessageSortType.Old)
-                await Clients.Caller.SendThreads(_messageService.GetOldest(10));
+            await Clients.Caller.SendThreads(_messageService.GetLatest(10, type));
         }
 
         public async Task RequestUpdate()
@@ -70,7 +67,7 @@ namespace ringkey.Logic.Hubs
                 {
                     Email = acc.Email,
                     AccountId = acc.Id.ToString(),
-                    Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
+                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
                 });
 
                 Context.Items["account"] = acc;
@@ -88,7 +85,7 @@ namespace ringkey.Logic.Hubs
                 {
                     Email = account.Email,
                     AccountId = acc.Id.ToString(),
-                    Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
+                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
                 });
 
                 Context.Items["account"] = acc;
@@ -110,7 +107,7 @@ namespace ringkey.Logic.Hubs
                 await Clients.Caller.Authenticated(new AuthenticateResponse()
                 {
                     Email = account.Email,
-                    Token = Accounts.Utility.GenerateJwtToken(acc)
+                    Token = Utility.GenerateJwtToken(acc)
                 });
                 
                 Context.Items["account"] = acc;

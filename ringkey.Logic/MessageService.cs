@@ -89,7 +89,6 @@ namespace ringkey.Logic
             _unitOfWork.SaveChanges();
 
             return MessageErrors.NoError;
-
         }
 
         public Message GetMessageDetails(string id)
@@ -201,8 +200,13 @@ namespace ringkey.Logic
             return MessageErrors.NoError;
         }
 
-        public List<ThreadView> GetLatest(int amount)
+        public List<ThreadView> GetLatest(int amount, MessageSortType sort = MessageSortType.New)
         {
+            if(sort == MessageSortType.Top)
+                return GetTop(10);
+            if(sort == MessageSortType.Old)
+                return GetOldest(10);
+            
             List<Message> messages = _unitOfWork.Message.GetLatest(amount);
             List<ThreadView> replies = new List<ThreadView>();
             
