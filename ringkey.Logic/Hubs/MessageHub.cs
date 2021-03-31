@@ -13,7 +13,7 @@ using Utility = ringkey.Logic.Accounts.Utility;
 
 namespace ringkey.Logic.Hubs
 {
-    public class MessageHub : Hub<IMessageClient>
+    public partial class MessageHub : Hub<IMessageClient>
     {
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
@@ -26,15 +26,6 @@ namespace ringkey.Logic.Hubs
             _accountService = accountService;
         }
 
-        public override Task OnConnectedAsync()
-        {
-            Context.Items["page"] = "/";
-
-            Groups.AddToGroupAsync(Context.ConnectionId, "/");
-            
-            return base.OnConnectedAsync();
-        }
-
         public async Task RequestSortedList(MessageSortType type)
         {
             await Clients.Caller.SendThreads(_messageService.GetLatest(10, type));
@@ -43,71 +34,6 @@ namespace ringkey.Logic.Hubs
         public async Task RequestUpdate()
         {
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-        }
-
-        public async Task UpdatePage(string page)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, (string) Context.Items["page"] ?? string.Empty);
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"{page}");
-            
-            Context.Items["page"] = $"{page}";
-        }
-
-        public async Task Authenticate(string token)
-        {
-            Account acc = _accountService.GetByToken(token);
-            if (acc != null)
-            {
-                await Clients.Caller.Authenticated(new AuthenticateResponse()
-                {
-                    Email = acc.Email,
-                    AccountId = acc.Id.ToString(),
-                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
-                });
-
-                Context.Items["account"] = acc;
-            }
-            else
-                await Clients.Caller.AuthenticateFailed(AccountError.InvalidLogin);
-        }
-
-        public async Task Login(AccountLogin account)
-        {
-            Account acc = _accountService.Login(account);
-            if (acc != null)
-            {
-                await Clients.Caller.Authenticated(new AuthenticateResponse()
-                {
-                    Email = account.Email,
-                    AccountId = acc.Id.ToString(),
-                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
-                });
-
-                Context.Items["account"] = acc;
-            }
-            else
-                await Clients.Caller.AuthenticateFailed(AccountError.InvalidLogin);
-        }
-
-        public async Task Register(AccountRegister account)
-        {
-            AccountError error = _accountService.Register(account);
-
-            if (error != AccountError.NoError)
-                await Clients.Caller.AuthenticateFailed(error);
-            else
-            {
-                Account acc = _unitOfWork.Account.GetByEmail(account.Email);
-                
-                await Clients.Caller.Authenticated(new AuthenticateResponse()
-                {
-                    Email = account.Email,
-                    Token = Utility.GenerateJwtToken(acc)
-                });
-                
-                Context.Items["account"] = acc;
-            }
-
         }
 
         public async Task ReportMessage(NewReport newReport) // ur reported dude
