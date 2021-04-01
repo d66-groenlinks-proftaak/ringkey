@@ -97,7 +97,7 @@ namespace ringkey.Logic.Messages
                             ;
                         }
                     }
-                    
+
                     _unitOfWork.SaveChanges();
                 }
                 await Task.Delay(1000);

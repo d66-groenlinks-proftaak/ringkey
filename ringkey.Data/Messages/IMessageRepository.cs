@@ -17,5 +17,7 @@ namespace ringkey.Data.Messages
         bool IsGuest(string id);
         List<Message> GetNextReplies(string id);
         List<ThreadView> GetReplyChildren(string id);
+        List<Message> GetShadowBannedMessages();
+
     }
 }

@@ -299,5 +299,30 @@ namespace ringkey.Logic
             
             return replies;
         }
+
+        public List<ThreadView> GetShadowBannedMessages()
+        {
+            List<Message> messages = _unitOfWork.Message.GetShadowBannedMessages();
+            List<ThreadView> threadViews = new List<ThreadView>();
+
+            foreach(Message msg in messages)
+            {
+                threadViews.Add(new ThreadView()
+                {
+                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    AuthorId = msg.Author.Id.ToString(),
+                    Content = msg.Content,
+                    Id = msg.Id,
+                    Parent = msg.Parent?.Id.ToString(),
+                    Created = msg.Created,
+                    Pinned = msg.Pinned,
+                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
+                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
+                });
+            }
+
+            return threadViews;
+        }
     }
 }

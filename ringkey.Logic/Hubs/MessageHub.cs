@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-using ringkey.Common.Models.Messages;
+﻿using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Messages;
 using ringkey.Data;
 using ringkey.Logic.Accounts;
-using ringkey.Logic.Messages;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ringkey.Logic.Hubs
 {
@@ -16,7 +14,7 @@ namespace ringkey.Logic.Hubs
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
         private AccountService _accountService;
-        
+
         public MessageHub(UnitOfWork unitOfWork, MessageService messageService, AccountService accountService)
         {
             _unitOfWork = unitOfWork;
@@ -29,17 +27,17 @@ namespace ringkey.Logic.Hubs
             Context.Items["page"] = "/";
 
             Groups.AddToGroupAsync(Context.ConnectionId, "/");
-            
+
             return base.OnConnectedAsync();
         }
 
         public async Task RequestSortedList(MessageSortType type)
         {
-            if(type == MessageSortType.New)
+            if (type == MessageSortType.New)
                 await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-            if(type == MessageSortType.Top)
+            if (type == MessageSortType.Top)
                 await Clients.Caller.SendThreads(_messageService.GetTop(10));
-            if(type == MessageSortType.Old)
+            if (type == MessageSortType.Old)
                 await Clients.Caller.SendThreads(_messageService.GetOldest(10));
         }
 
@@ -50,17 +48,17 @@ namespace ringkey.Logic.Hubs
 
         public async Task UpdatePage(string page)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, (string) Context.Items["page"] ?? string.Empty);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, (string)Context.Items["page"] ?? string.Empty);
             await Groups.AddToGroupAsync(Context.ConnectionId, $"{page}");
-            
+
             Context.Items["page"] = $"{page}";
         }
 
         public async Task CreateMessage(NewMessage message)
         {
             MessageErrors error;
-            
-            if(Context.Items.ContainsKey("account"))
+
+            if (Context.Items.ContainsKey("account"))
                 error = _messageService.CreateMessage(message, (Account)Context.Items["account"]);
             else
                 error = _messageService.CreateMessage(message, null);
@@ -119,13 +117,13 @@ namespace ringkey.Logic.Hubs
             else
             {
                 Account acc = _unitOfWork.Account.GetByEmail(account.Email);
-                
+
                 await Clients.Caller.Authenticated(new AuthenticateResponse()
                 {
                     Email = account.Email,
                     Token = Accounts.Utility.GenerateJwtToken(acc)
                 });
-                
+
                 Context.Items["account"] = acc;
             }
 
@@ -155,8 +153,8 @@ namespace ringkey.Logic.Hubs
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
-            
-            if(Context.Items.ContainsKey("account"))
+
+            if (Context.Items.ContainsKey("account"))
                 error = _messageService.CreateReply(message, (Account)Context.Items["account"]);
             else
                 error = _messageService.CreateReply(message, null);
@@ -164,11 +162,16 @@ namespace ringkey.Logic.Hubs
             if (error != MessageErrors.NoError)
                 await Clients.Caller.MessageCreationError(error);
         }
-        
+
+        public async Task GetShadowBannedMessages()
+        {
+            await Clients.Caller.SendShadowBannedMessages(_messageService.GetShadowBannedMessages());
+        }
+
         public async Task LoadMessageThread(string id)
         {
             Message message = _messageService.GetMessageDetails(id);
-            
+
             await Clients.Caller.SendThreadDetails(new Thread()
             {
                 Parent = new ThreadView()
@@ -199,7 +202,7 @@ namespace ringkey.Logic.Hubs
         /// <returns>the profile data to display in the browser</returns>
         public async Task GetProfile(string id)
         {
-            Profile profile= _unitOfWork.Account.GetProfileById(id);
+            Profile profile = _unitOfWork.Account.GetProfileById(id);
 
             await Clients.Caller.SendProfile(profile);
         }

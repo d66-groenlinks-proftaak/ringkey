@@ -141,7 +141,17 @@ namespace ringkey.Data.Messages
                 .Where(msg => !msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
+                .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
+                .ToList();
+        }
+
+        public List<Message> GetShadowBannedMessages()
+        {
+            return _dbContext.Message
+                .Where(msg => msg.Type == MessageType.PossibleSpam)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Author)
                 .ToList();
         }
 

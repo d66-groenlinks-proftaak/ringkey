@@ -17,5 +17,6 @@ namespace ringkey.Logic.Hubs
         Task Authenticated(AuthenticateResponse authenticateResponse);
         Task MessageCreationError(MessageErrors error);
         Task SendChildren(List<ThreadView> children);
+        Task SendShadowBannedMessages(List<ThreadView> messages);
     }
 }
