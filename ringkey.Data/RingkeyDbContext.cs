@@ -11,6 +11,7 @@ namespace ringkey.Data
         public DbSet<Report> Report { get; set; }
         public DbSet<MessageTag> Tag { get; set; }
         public DbSet<BannedWord> BannedWords { get; set; }
+        public DbSet<Role> Role { get; set; }
         public RingkeyDbContext(DbContextOptions options) : base(options) {}
     }
 }

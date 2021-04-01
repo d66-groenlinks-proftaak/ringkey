@@ -84,18 +84,17 @@ namespace ringkey.Logic.Accounts
             Account tmp = _unitOfWork.Account.GetByEmail(account.Email);
             if (_unitOfWork.Account.GetByEmail(account.Email) != null)
             {
-                if (tmp.Roles.Any(role => role.Type == RoleType.Guest))
+                if (tmp.Roles.Any(role => role.Name == "Guest"))
                 {
                     tmp.FirstName = account.FirstName;
                     tmp.LastName = account.LastName;
                     tmp.Password = Argon2.Hash(account.Password);
                     tmp.Roles = new List<Role>()
                     {
-                        new Role() {
-                            Type = RoleType.Member
-                        }
+                            _unitOfWork.Role.GetByName("Member")
                     };
-                } else
+                } 
+                else
                     return AccountError.EmailInUse;
             }
             else
@@ -108,10 +107,7 @@ namespace ringkey.Logic.Accounts
                     Password = Argon2.Hash(account.Password),
                     Roles = new List<Role>()
                     {
-                        new Role()
-                        {
-                            Type = RoleType.Member
-                        }
+                        _unitOfWork.Role.GetByName("Member")
                     }
                 });
             }

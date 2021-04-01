@@ -35,7 +35,6 @@ namespace ringkey.Logic.Hubs
         {
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
         }
-
         public async Task ReportMessage(NewReport newReport) // ur reported dude
         {
             if (Context.Items.ContainsKey("account"))
@@ -57,6 +56,40 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.ConfirmReport(false);
         }
 
+        public async Task CreateRole(NewRole newRole)
+        {
+            List<Permission> perms = new List<Permission>();
+            if(newRole.Permissions != null)
+            {
+                foreach (NewPermission perm in newRole.Permissions)
+                {
+                    perms.Add(new Permission()
+                    {
+                        Perm = (Permissions)perm.Code
+                    });
+                }
+            }
+            
+            if(_unitOfWork.Role.GetByName(newRole.Name) == null)
+            {
+                Role role = new Role()
+                {
+                    Name = newRole.Name,
+                    Permissions = perms
+                };
+                _unitOfWork.Role.Add(role);
+                _unitOfWork.SaveChanges();
+                await Clients.Caller.ConfirmRoleCreation(true);
+            }
+            else
+                await Clients.Caller.ConfirmRoleCreation(false);
+        }
+        public async Task GetRoleList()
+        {
+            List<Role> roles = _unitOfWork.Role.GetAllRoles(); 
+
+            await Clients.Caller.ReceiveRoleList(roles);
+        }
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;

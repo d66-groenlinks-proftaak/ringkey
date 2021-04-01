@@ -33,16 +33,6 @@ namespace ringkey.Data.Accounts
                 .Take(10)
                 .ToList();
 
-            foreach (Message message in messages)
-            {
-                message.Author = null;
-            }
-
-            foreach (Role role in account.Roles)
-            {
-                role.Account = null;
-            }
-
             return new Profile()
             {
                 Id = account.Id,
