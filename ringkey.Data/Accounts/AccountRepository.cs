@@ -26,22 +26,25 @@ namespace ringkey.Data.Accounts
                 .Include(acc => acc.Roles)
                 .FirstOrDefault(acc => acc.Id.ToString() == id);
 
+            List<Message> _messages = new List<Message>();
             List<Message> messages = _dbContext.Message
                 .Include(msg => msg.Author)
                 .Where(msg => msg.Processed && msg.Type == MessageType.Thread && msg.Author.Id.ToString() == id)
                 .OrderByDescending(msg => msg.Created)
                 .Take(10)
                 .ToList();
-
-            foreach (Message message in messages)
+            
+            foreach (var message in messages)
             {
-                message.Author = null;
+                _messages.Add(new Message()
+                {
+                    Id = message.Id,
+                    Created = message.Created,
+                    Content = message.Content,
+                    Title = message.Title
+                });
             }
-
-            foreach (Role role in account.Roles)
-            {
-                role.Account = null;
-            }
+            
 
             return new Profile()
             {
@@ -49,8 +52,7 @@ namespace ringkey.Data.Accounts
                 FirstName = account.FirstName,
                 LastName = account.LastName,
                 Email = account.Email,
-                Roles = account.Roles,
-                Messages = messages
+                Messages = _messages
             };
         }
         

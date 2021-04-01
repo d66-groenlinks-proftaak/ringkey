@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
 using ringkey.Logic.Messages;
@@ -18,7 +19,7 @@ namespace ringkey.Logic
             _unitOfWork = unitOfWork;
             }
 
-        public MessageErrors CreateMessage(NewMessage message, Account authenticated)
+        public MessageErrors CreateMessage(NewMessage message, Account authenticated, List<Attachment> attachments)
         {
             MessageErrors error;
             Account account = _unitOfWork.Account.GetByEmail(message.Email);
@@ -36,7 +37,7 @@ namespace ringkey.Logic
                     if (error != MessageErrors.NoError)
                         return error;
 
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (account.Roles.Any(role => role.Name != "Guest"))
                     {
                         if (authenticated != null && authenticated.Id == account.Id)
                         {
@@ -59,12 +60,9 @@ namespace ringkey.Logic
                         Password = "",
                         FirstName = message.Author,
                         LastName = "",
-                        Roles = new List<Role>()
-                        {
-                            new Role()
-                            {
-                                Type = RoleType.Guest
-                            }
+                        Roles = new List<Role>() 
+                        { 
+                            _unitOfWork.Role.GetByName("Guest")
                         }
                     };
 
@@ -80,7 +78,8 @@ namespace ringkey.Logic
                 Type = MessageType.Thread,
                 Title = message.Title,
                 Processed = false,
-                Pinned = false
+                Pinned = false,
+                Attachments = attachments
             };
 
             _unitOfWork.Message.Add(newMessage);
@@ -88,7 +87,6 @@ namespace ringkey.Logic
             _unitOfWork.SaveChanges();
 
             return MessageErrors.NoError;
-
         }
 
         public Message GetMessageDetails(string id)
@@ -138,7 +136,7 @@ namespace ringkey.Logic
                     if (error != MessageErrors.NoError)
                         return error;
 
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (account.Roles.Any(role => role.Name != "Guest"))
                     {
                         if (authenticated != null && authenticated.Id == account.Id)
                         {
@@ -163,10 +161,7 @@ namespace ringkey.Logic
                         LastName = "",
                         Roles = new List<Role>()
                         {
-                            new Role()
-                            {
-                                Type = RoleType.Guest
-                            }
+                            _unitOfWork.Role.GetByName("Guest")
                         }
                     };
 
@@ -200,8 +195,13 @@ namespace ringkey.Logic
             return MessageErrors.NoError;
         }
 
-        public List<ThreadView> GetLatest(int amount)
+        public List<ThreadView> GetLatest(int amount, MessageSortType sort = MessageSortType.New)
         {
+            if(sort == MessageSortType.Top)
+                return GetTop(10);
+            if(sort == MessageSortType.Old)
+                return GetOldest(10);
+            
             List<Message> messages = _unitOfWork.Message.GetLatest(amount);
             List<ThreadView> replies = new List<ThreadView>();
             

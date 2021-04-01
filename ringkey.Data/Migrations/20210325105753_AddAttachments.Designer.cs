@@ -2,35 +2,22 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ringkey.Data;
 
 namespace ringkey.Data.Migrations
 {
     [DbContext(typeof(RingkeyDbContext))]
-    partial class RingkeyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210325105753_AddAttachments")]
+    partial class AddAttachments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.3");
-
-            modelBuilder.Entity("AccountRole", b =>
-                {
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("RolesId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("AccountId", "RolesId");
-
-                    b.HasIndex("RolesId");
-
-                    b.ToTable("AccountRole");
-                });
 
             modelBuilder.Entity("ringkey.Common.Models.Account", b =>
                 {
@@ -53,25 +40,6 @@ namespace ringkey.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Account");
-                });
-
-            modelBuilder.Entity("ringkey.Common.Models.Accounts.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<int>("Perm")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("RoleId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("Permission");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.BannedWord", b =>
@@ -203,34 +171,17 @@ namespace ringkey.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId");
+
                     b.ToTable("Role");
-                });
-
-            modelBuilder.Entity("AccountRole", b =>
-                {
-                    b.HasOne("ringkey.Common.Models.Account", null)
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ringkey.Common.Models.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ringkey.Common.Models.Accounts.Permission", b =>
-                {
-                    b.HasOne("ringkey.Common.Models.Role", null)
-                        .WithMany("Permissions")
-                        .HasForeignKey("RoleId");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Messages.Attachment", b =>
@@ -279,11 +230,22 @@ namespace ringkey.Data.Migrations
                     b.Navigation("Message");
                 });
 
+            modelBuilder.Entity("ringkey.Common.Models.Role", b =>
+                {
+                    b.HasOne("ringkey.Common.Models.Account", "Account")
+                        .WithMany("Roles")
+                        .HasForeignKey("AccountId");
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("ringkey.Common.Models.Account", b =>
                 {
                     b.Navigation("Messages");
 
                     b.Navigation("Reports");
+
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
@@ -295,11 +257,6 @@ namespace ringkey.Data.Migrations
                     b.Navigation("Reports");
 
                     b.Navigation("Tags");
-                });
-
-            modelBuilder.Entity("ringkey.Common.Models.Role", b =>
-                {
-                    b.Navigation("Permissions");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,6 +6,7 @@ using ringkey.Data.Accounts;
 using ringkey.Data.BannedWords;
 using ringkey.Data.Messages;
 using ringkey.Data.Reports;
+using ringkey.Data.Roles;
 
 namespace ringkey.Data
 {
@@ -15,6 +16,7 @@ namespace ringkey.Data
         public IMessageRepository Message { get; private set; }
         public IBannedWordsRepository BannedWords { get; private set; }
         public IReportRepository Report { get; private set; }
+        public IRoleRepository Role { get; private set; }
 
         private RingkeyDbContext _context;
 
@@ -26,6 +28,7 @@ namespace ringkey.Data
             Message = new MessageRepository(_context);
             BannedWords = new BannedWordsRepository(_context);
             Report = new ReportRepository(_context);
+            Role = new RoleRepository(_context);
         }
 
         public void SaveChanges()

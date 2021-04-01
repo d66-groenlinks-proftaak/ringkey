@@ -18,6 +18,7 @@ using ringkey.Logic;
 using ringkey.Logic.Accounts;
 using ringkey.Logic.Hubs;
 using ringkey.Logic.Messages;
+using ringkey.Logic.Roles;
 
 namespace ringkey
 {
@@ -47,6 +48,7 @@ namespace ringkey
 
             services.AddScoped<MessageService>();
             services.AddScoped<AccountService>();
+            services.AddHostedService<RoleStartup>();
             
             services.AddTransient<UnitOfWork>();
 
@@ -68,6 +70,8 @@ namespace ringkey
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseStaticFiles();
 
             app.UseCors(builder =>
             {

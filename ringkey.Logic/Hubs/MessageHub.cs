@@ -1,15 +1,26 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models;
+
 using ringkey.Common.Models.Messages;
+
+using ringkey.Common.Models.Accounts;
+using ringkey.Common.Models.Roles;
+
 using ringkey.Data;
+using ringkey.Logic;
 using ringkey.Logic.Accounts;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using ringkey.Logic.Messages;
+using Utility = ringkey.Logic.Accounts.Utility;
+
+
 namespace ringkey.Logic.Hubs
 {
-    public class MessageHub : Hub<IMessageClient>
+    public partial class MessageHub : Hub<IMessageClient>
     {
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
@@ -22,111 +33,17 @@ namespace ringkey.Logic.Hubs
             _accountService = accountService;
         }
 
-        public override Task OnConnectedAsync()
-        {
-            Context.Items["page"] = "/";
-
-            Groups.AddToGroupAsync(Context.ConnectionId, "/");
-
-            return base.OnConnectedAsync();
-        }
-
         public async Task RequestSortedList(MessageSortType type)
         {
-            if (type == MessageSortType.New)
-                await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-            if (type == MessageSortType.Top)
-                await Clients.Caller.SendThreads(_messageService.GetTop(10));
-            if (type == MessageSortType.Old)
-                await Clients.Caller.SendThreads(_messageService.GetOldest(10));
+            await Clients.Caller.SendThreads(_messageService.GetLatest(10, type));
+
         }
 
         public async Task RequestUpdate()
         {
+            Console.WriteLine("RECEIVED");
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-        }
-
-        public async Task UpdatePage(string page)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, (string)Context.Items["page"] ?? string.Empty);
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"{page}");
-
-            Context.Items["page"] = $"{page}";
-        }
-
-        public async Task CreateMessage(NewMessage message)
-        {
-            MessageErrors error;
-
-            if (Context.Items.ContainsKey("account"))
-                error = _messageService.CreateMessage(message, (Account)Context.Items["account"]);
-            else
-                error = _messageService.CreateMessage(message, null);
-
-            Console.WriteLine(error);
-
-            if (error != MessageErrors.NoError)
-            {
-                Console.WriteLine("Send error!");
-                await Clients.Caller.MessageCreationError(error);
-            }
-        }
-
-        public async Task Authenticate(string token)
-        {
-            Account acc = _accountService.GetByToken(token);
-            if (acc != null)
-            {
-                await Clients.Caller.Authenticated(new AuthenticateResponse()
-                {
-                    Email = acc.Email,
-                    AccountId = acc.Id.ToString(),
-                    Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
-                });
-
-                Context.Items["account"] = acc;
-            }
-            else
-                await Clients.Caller.AuthenticateFailed(AccountError.InvalidLogin);
-        }
-
-        public async Task Login(AccountLogin account)
-        {
-            Account acc = _accountService.Login(account);
-            if (acc != null)
-            {
-                await Clients.Caller.Authenticated(new AuthenticateResponse()
-                {
-                    Email = account.Email,
-                    AccountId = acc.Id.ToString(),
-                    Token = Accounts.Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
-                });
-
-                Context.Items["account"] = acc;
-            }
-            else
-                await Clients.Caller.AuthenticateFailed(AccountError.InvalidLogin);
-        }
-
-        public async Task Register(AccountRegister account)
-        {
-            AccountError error = _accountService.Register(account);
-
-            if (error != AccountError.NoError)
-                await Clients.Caller.AuthenticateFailed(error);
-            else
-            {
-                Account acc = _unitOfWork.Account.GetByEmail(account.Email);
-
-                await Clients.Caller.Authenticated(new AuthenticateResponse()
-                {
-                    Email = account.Email,
-                    Token = Accounts.Utility.GenerateJwtToken(acc)
-                });
-
-                Context.Items["account"] = acc;
-            }
-
+            Console.WriteLine("SENT");
         }
 
         public async Task ReportMessage(NewReport newReport) // ur reported dude
@@ -150,6 +67,40 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.ConfirmReport(false);
         }
 
+        public async Task CreateRole(NewRole newRole)
+        {
+            List<Permission> perms = new List<Permission>();
+            if(newRole.Permissions != null)
+            {
+                foreach (NewPermission perm in newRole.Permissions)
+                {
+                    perms.Add(new Permission()
+                    {
+                        Perm = (Permissions)perm.Code
+                    });
+                }
+            }
+            
+            if(_unitOfWork.Role.GetByName(newRole.Name) == null)
+            {
+                Role role = new Role()
+                {
+                    Name = newRole.Name,
+                    Permissions = perms
+                };
+                _unitOfWork.Role.Add(role);
+                _unitOfWork.SaveChanges();
+                await Clients.Caller.ConfirmRoleCreation(true);
+            }
+            else
+                await Clients.Caller.ConfirmRoleCreation(false);
+        }
+        public async Task GetRoleList()
+        {
+            List<Role> roles = _unitOfWork.Role.GetAllRoles(); 
+
+            await Clients.Caller.ReceiveRoleList(roles);
+        }
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
@@ -182,7 +133,8 @@ namespace ringkey.Logic.Hubs
                     Id = message.Id,
                     Parent = message.Parent?.Id.ToString(),
                     Title = message.Title,
-                    Created = message.Created
+                    Created = message.Created,
+                    Attachments = message.Attachments
                 },
                 Children = _messageService.GetMessageReplies(id)
             });
