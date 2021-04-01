@@ -53,7 +53,7 @@ namespace ringkey.Logic.Messages
                 }
             }
 
-            DefaultRoles.CheckAllDefaultRoles(_unitOfWork);
+            //DefaultRoles.CheckAllDefaultRoles(_unitOfWork);
 
             while (!cancellationToken.IsCancellationRequested)
             {

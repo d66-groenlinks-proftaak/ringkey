@@ -10,5 +10,6 @@ namespace ringkey.Data.Roles
     public interface IRoleRepository : IRepository<Role>
     {
         Role GetByName(string name);
-    }
+        List<Role> GetAllRoles();
+    } 
 }

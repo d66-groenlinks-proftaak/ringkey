@@ -1,4 +1,5 @@
-﻿using ringkey.Common.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ringkey.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,10 @@ namespace ringkey.Data.Roles
         public Role GetByName(string name)
         {
             return _dbContext.Role.FirstOrDefault(r => r.Name == name);
+        }
+        public List<Role> GetAllRoles()
+        {
+            return _dbContext.Role.Include(a => a.Permissions).ToList();
         }
         public RoleRepository(RingkeyDbContext context) : base(context)
         {

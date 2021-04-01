@@ -10,6 +10,7 @@ using ringkey.Logic.Accounts;
 using ringkey.Logic.Messages;
 using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Roles;
+using System.Linq;
 
 namespace ringkey.Logic.Hubs
 {
@@ -58,10 +59,6 @@ namespace ringkey.Logic.Hubs
             Context.Items["page"] = $"{page}";
         }
 
-        public async Task CreateMessage(NewMessage message)
-        {
-            
-        }
 
         public async Task Authenticate(string token)
         {
@@ -144,14 +141,17 @@ namespace ringkey.Logic.Hubs
         public async Task CreateRole(NewRole newRole)
         {
             List<Permission> perms = new List<Permission>();
-            foreach (NewPermission perm in newRole.Permissions)
+            if(newRole.Permissions != null)
             {
-                perms.Add(new Permission()
+                foreach (NewPermission perm in newRole.Permissions)
                 {
-                    Perm = (Permissions)perm.Code
-                });
+                    perms.Add(new Permission()
+                    {
+                        Perm = (Permissions)perm.Code
+                    });
+                }
             }
-
+            
             if(_unitOfWork.Role.GetByName(newRole.Name) == null)
             {
                 Role role = new Role()
@@ -161,10 +161,17 @@ namespace ringkey.Logic.Hubs
                 };
                 _unitOfWork.Role.Add(role);
                 _unitOfWork.SaveChanges();
+                await Clients.Caller.ConfirmRoleCreation(true);
             }
-        
+            else
+                await Clients.Caller.ConfirmRoleCreation(false);
         }
+        public async Task GetRoleList()
+        {
+            List<Role> roles = _unitOfWork.Role.GetAllRoles(); 
 
+            await Clients.Caller.ReceiveRoleList(roles);
+        }
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
