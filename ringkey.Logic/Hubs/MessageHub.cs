@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models.Messages;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
+using ringkey.Common.Models.Roles;
 using ringkey.Data;
 using ringkey.Logic;
 using ringkey.Logic.Accounts;
@@ -33,7 +35,9 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestUpdate()
         {
+            Console.WriteLine("RECEIVED");
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
+            Console.WriteLine("SENT");
         }
         public async Task ReportMessage(NewReport newReport) // ur reported dude
         {
