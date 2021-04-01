@@ -188,6 +188,11 @@ namespace ringkey.Logic.Hubs
             });
         }
 
+        public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage) 
+        {
+            _messageService.UpdateBannedMessage(newBannedMessage);
+        }
+
         public async Task LoadSubReplies(string id)
         {
             List<ThreadView> newReplies = _messageService.GetNextReplies(id);

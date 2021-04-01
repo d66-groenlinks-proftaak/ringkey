@@ -18,6 +18,5 @@ namespace ringkey.Data.Messages
         List<Message> GetNextReplies(string id);
         List<ThreadView> GetReplyChildren(string id);
         List<Message> GetShadowBannedMessages();
-
     }
 }

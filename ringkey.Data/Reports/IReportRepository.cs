@@ -9,6 +9,6 @@ namespace ringkey.Data.Reports
 {
     public interface IReportRepository : IRepository<Report>
     {
-
+        List<Report> GetByPostId(Guid postId);
     }
 }

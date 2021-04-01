@@ -310,6 +310,7 @@ namespace ringkey.Logic
                 threadViews.Add(new ThreadView()
                 {
                     Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    Title = msg.Title,
                     AuthorId = msg.Author.Id.ToString(),
                     Content = msg.Content,
                     Id = msg.Id,
@@ -323,6 +324,44 @@ namespace ringkey.Logic
             }
 
             return threadViews;
+        }
+
+
+        //TODO
+        public void UpdateBannedMessage(NewBannedMessage newBannedMessage)
+        {
+            Message message = _unitOfWork.Message.GetById(newBannedMessage.PostId);
+            if (!newBannedMessage.Banned)
+            {
+                if(message.Parent != null)
+                {
+                    message.Type = MessageType.Reply;
+                }
+                else
+                {
+                    message.Type = MessageType.Thread;
+                }
+            }
+            else
+            {
+                RemoveBannedMessage(message);
+
+                //ban user ofzo
+            }
+            _unitOfWork.SaveChanges();
+        }
+
+        public void RemoveBannedMessage(Message message)
+        {
+            foreach (Report report in _unitOfWork.Report.GetByPostId(message.Id))
+            {
+                _unitOfWork.Report.Remove(report);
+            }
+            foreach (Message msg in _unitOfWork.Message.GetReplies(message.Id.ToString()))
+            {
+                RemoveBannedMessage(msg);
+            }
+            _unitOfWork.Message.Remove(message);
         }
     }
 }
