@@ -190,6 +190,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage) 
         {
+            Console.WriteLine(newBannedMessage.PostId);
             _messageService.UpdateBannedMessage(newBannedMessage);
         }
 
