@@ -152,6 +152,8 @@ namespace ringkey.Data.Messages
         {
             return _dbContext.Message
                 .Where(msg => msg.Type == MessageType.PossibleSpam)
+                .OrderBy(msg => msg.Created)
+                .Take(5)
                 .Include(msg => msg.Parent)
                 .Include(msg => msg.Author)
                 .ToList();
