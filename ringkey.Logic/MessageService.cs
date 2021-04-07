@@ -331,24 +331,27 @@ namespace ringkey.Logic
         public void UpdateBannedMessage(NewBannedMessage newBannedMessage)
         {
             Message message = _unitOfWork.Message.GetById(newBannedMessage.PostId);
-            if (!newBannedMessage.Banned)
+            if(message != null)
             {
-                if(message.Parent != null)
+                if (!newBannedMessage.Banned)
                 {
-                    message.Type = MessageType.Reply;
+                    if(message.Parent != null)
+                    {
+                        message.Type = MessageType.Reply;
+                    }
+                    else
+                    {
+                        message.Type = MessageType.Thread;
+                    }
                 }
                 else
                 {
-                    message.Type = MessageType.Thread;
-                }
-            }
-            else
-            {
-                RemoveBannedMessage(message);
+                    RemoveBannedMessage(message);
 
-                //ban user ofzo
+                    //ban user ofzo
+                }
+                _unitOfWork.SaveChanges();
             }
-            _unitOfWork.SaveChanges();
         }
 
         public void RemoveBannedMessage(Message message)

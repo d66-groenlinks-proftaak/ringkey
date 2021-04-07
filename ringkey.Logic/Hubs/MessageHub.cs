@@ -41,9 +41,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestUpdate()
         {
-            Console.WriteLine("RECEIVED");
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-            Console.WriteLine("SENT");
         }
 
         public async Task ReportMessage(NewReport newReport) // ur reported dude
@@ -142,8 +140,16 @@ namespace ringkey.Logic.Hubs
 
         public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage) 
         {
-            Console.WriteLine(newBannedMessage.PostId);
             _messageService.UpdateBannedMessage(newBannedMessage);
+            if (newBannedMessage.Banned)
+            {
+                await Clients.Caller.ConfirmBannedMessageUpdate(BannedMessageConfirmation.MessageDeleted);
+            }
+            else
+            {
+                await Clients.Caller.ConfirmBannedMessageUpdate(BannedMessageConfirmation.MessageAdded);
+            }
+            
         }
 
         public async Task LoadSubReplies(string id)

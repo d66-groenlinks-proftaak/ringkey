@@ -21,6 +21,6 @@ namespace ringkey.Logic.Hubs
         Task SendShadowBannedMessages(List<ThreadView> messages);
         Task ConfirmRoleCreation(bool RoleConfirmation);
         Task ReceiveRoleList(List<Role> roleList);
-
+        Task ConfirmBannedMessageUpdate(BannedMessageConfirmation confirmation);
     }
 }
