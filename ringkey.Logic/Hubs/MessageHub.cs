@@ -64,7 +64,31 @@ namespace ringkey.Logic.Hubs
             }
             await Clients.Caller.ConfirmReport(false);
         }
+        public async Task EditRole(NewRole newRole)
+        {
+            List<Permission> perms = new List<Permission>();
+            if (newRole.Permissions != null)
+            {
+                foreach (NewPermission perm in newRole.Permissions)
+                {
+                    perms.Add(new Permission()
+                    {
+                        Perm = (Permissions)perm.Code
+                    });
+                }
+            }
 
+            if (_unitOfWork.Role.GetByName(newRole.Name) != null)
+            {
+                Role role = _unitOfWork.Role.GetByName(newRole.Name);
+                _unitOfWork.Permission.RemoveExistingPermissions(role);
+                role.Permissions = perms;
+                _unitOfWork.SaveChanges();
+                await Clients.Caller.ConfirmRoleEdit(true);
+            }
+            else
+                await Clients.Caller.ConfirmRoleEdit(false);
+        }
         public async Task CreateRole(NewRole newRole)
         {
             List<Permission> perms = new List<Permission>();
@@ -78,8 +102,14 @@ namespace ringkey.Logic.Hubs
                     });
                 }
             }
-            
-            if(_unitOfWork.Role.GetByName(newRole.Name) == null)
+
+            if (newRole.Name.Length <= 2)
+                await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTooShort);
+            else if (newRole.Name.Length >= 20)
+                await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTooLong);
+            else if (_unitOfWork.Role.GetByName(newRole.Name) != null)
+                await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTaken);            
+            else
             {
                 Role role = new Role()
                 {
@@ -88,10 +118,9 @@ namespace ringkey.Logic.Hubs
                 };
                 _unitOfWork.Role.Add(role);
                 _unitOfWork.SaveChanges();
-                await Clients.Caller.ConfirmRoleCreation(true);
+                await Clients.Caller.ConfirmRoleCreation(RoleCreationError.Success);
             }
-            else
-                await Clients.Caller.ConfirmRoleCreation(false);
+                
         }
         public async Task GetRoleList()
         {

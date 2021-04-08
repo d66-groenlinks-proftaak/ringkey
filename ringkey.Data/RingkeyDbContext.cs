@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
 
 namespace ringkey.Data
@@ -12,6 +13,7 @@ namespace ringkey.Data
         public DbSet<MessageTag> Tag { get; set; }
         public DbSet<BannedWord> BannedWords { get; set; }
         public DbSet<Role> Role { get; set; }
+        public DbSet<Permission> Permission { get; set; }
         public RingkeyDbContext(DbContextOptions options) : base(options) {}
     }
 }
