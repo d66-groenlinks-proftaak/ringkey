@@ -1,14 +1,15 @@
 ﻿using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
+using ringkey.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ringkey.Data.Reports
+namespace ringkey.Logic.Roles
 {
-    public interface IReportRepository : IRepository<Report>
+    public static class DefaultRoles
     {
-        List<Report> GetByPostId(Guid postId);
     }
 }

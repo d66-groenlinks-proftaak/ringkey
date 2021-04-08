@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ringkey.Common.Models;
+using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
 using ringkey.Data;
 using ringkey.Logic.Messages;
@@ -36,7 +37,7 @@ namespace ringkey.Logic
                     if (error != MessageErrors.NoError)
                         return error;
 
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (account.Roles.Any(role => role.Name != "Guest"))
                     {
                         if (authenticated != null && authenticated.Id == account.Id)
                         {
@@ -59,12 +60,9 @@ namespace ringkey.Logic
                         Password = "",
                         FirstName = message.Author,
                         LastName = "",
-                        Roles = new List<Role>()
-                        {
-                            new Role()
-                            {
-                                Type = RoleType.Guest
-                            }
+                        Roles = new List<Role>() 
+                        { 
+                            _unitOfWork.Role.GetByName("Guest")
                         }
                     };
 
@@ -138,7 +136,7 @@ namespace ringkey.Logic
                     if (error != MessageErrors.NoError)
                         return error;
 
-                    if (account.Roles.Any(role => role.Type != RoleType.Guest))
+                    if (account.Roles.Any(role => role.Name != "Guest"))
                     {
                         if (authenticated != null && authenticated.Id == account.Id)
                         {
@@ -163,10 +161,7 @@ namespace ringkey.Logic
                         LastName = "",
                         Roles = new List<Role>()
                         {
-                            new Role()
-                            {
-                                Type = RoleType.Guest
-                            }
+                            _unitOfWork.Role.GetByName("Guest")
                         }
                     };
 
@@ -303,6 +298,73 @@ namespace ringkey.Logic
             }
             
             return replies;
+        }
+
+        public List<ThreadView> GetShadowBannedMessages()
+        {
+            List<Message> messages = _unitOfWork.Message.GetShadowBannedMessages();
+            List<ThreadView> threadViews = new List<ThreadView>();
+
+            foreach(Message msg in messages)
+            {
+                threadViews.Add(new ThreadView()
+                {
+                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
+                    Title = msg.Title,
+                    AuthorId = msg.Author.Id.ToString(),
+                    Content = msg.Content,
+                    Id = msg.Id,
+                    Parent = msg.Parent?.Id.ToString(),
+                    Created = msg.Created,
+                    Pinned = msg.Pinned,
+                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
+                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
+                });
+            }
+
+            return threadViews;
+        }
+
+
+        //TODO
+        public void UpdateBannedMessage(NewBannedMessage newBannedMessage)
+        {
+            Message message = _unitOfWork.Message.GetById(newBannedMessage.PostId);
+            if(message != null)
+            {
+                if (!newBannedMessage.Banned)
+                {
+                    if(message.Parent != null)
+                    {
+                        message.Type = MessageType.Reply;
+                    }
+                    else
+                    {
+                        message.Type = MessageType.Thread;
+                    }
+                }
+                else
+                {
+                    RemoveBannedMessage(message);
+
+                    //ban user ofzo
+                }
+                _unitOfWork.SaveChanges();
+            }
+        }
+
+        public void RemoveBannedMessage(Message message)
+        {
+            foreach (Report report in _unitOfWork.Report.GetByPostId(message.Id))
+            {
+                _unitOfWork.Report.Remove(report);
+            }
+            foreach (Message msg in _unitOfWork.Message.GetReplies(message.Id.ToString()))
+            {
+                RemoveBannedMessage(msg);
+            }
+            _unitOfWork.Message.Remove(message);
         }
     }
 }

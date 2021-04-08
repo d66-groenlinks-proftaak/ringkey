@@ -1,15 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-using ringkey.Common.Models.Messages;
+﻿using Microsoft.AspNetCore.SignalR;
 using ringkey.Common.Models;
+
+using ringkey.Common.Models.Messages;
+
+using ringkey.Common.Models.Accounts;
+using ringkey.Common.Models.Roles;
+
 using ringkey.Data;
 using ringkey.Logic;
 using ringkey.Logic.Accounts;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using ringkey.Logic.Messages;
 using Utility = ringkey.Logic.Accounts.Utility;
+
 
 namespace ringkey.Logic.Hubs
 {
@@ -18,7 +25,7 @@ namespace ringkey.Logic.Hubs
         private UnitOfWork _unitOfWork;
         private MessageService _messageService;
         private AccountService _accountService;
-        
+
         public MessageHub(UnitOfWork unitOfWork, MessageService messageService, AccountService accountService)
         {
             _unitOfWork = unitOfWork;
@@ -29,6 +36,7 @@ namespace ringkey.Logic.Hubs
         public async Task RequestSortedList(MessageSortType type)
         {
             await Clients.Caller.SendThreads(_messageService.GetLatest(10, type));
+
         }
 
         public async Task RequestUpdate()
@@ -57,6 +65,40 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.ConfirmReport(false);
         }
 
+        public async Task CreateRole(NewRole newRole)
+        {
+            List<Permission> perms = new List<Permission>();
+            if(newRole.Permissions != null)
+            {
+                foreach (NewPermission perm in newRole.Permissions)
+                {
+                    perms.Add(new Permission()
+                    {
+                        Perm = (Permissions)perm.Code
+                    });
+                }
+            }
+            
+            if(_unitOfWork.Role.GetByName(newRole.Name) == null)
+            {
+                Role role = new Role()
+                {
+                    Name = newRole.Name,
+                    Permissions = perms
+                };
+                _unitOfWork.Role.Add(role);
+                _unitOfWork.SaveChanges();
+                await Clients.Caller.ConfirmRoleCreation(true);
+            }
+            else
+                await Clients.Caller.ConfirmRoleCreation(false);
+        }
+        public async Task GetRoleList()
+        {
+            List<Role> roles = _unitOfWork.Role.GetAllRoles(); 
+
+            await Clients.Caller.ReceiveRoleList(roles);
+        }
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
@@ -69,11 +111,16 @@ namespace ringkey.Logic.Hubs
             if (error != MessageErrors.NoError)
                 await Clients.Caller.MessageCreationError(error);
         }
-        
+
+        public async Task GetShadowBannedMessages()
+        {
+            await Clients.Caller.SendShadowBannedMessages(_messageService.GetShadowBannedMessages());
+        }
+
         public async Task LoadMessageThread(string id)
         {
             Message message = _messageService.GetMessageDetails(id);
-            
+
             await Clients.Caller.SendThreadDetails(new Thread()
             {
                 Parent = new ThreadView()
@@ -93,6 +140,20 @@ namespace ringkey.Logic.Hubs
             });
         }
 
+        public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage) 
+        {
+            _messageService.UpdateBannedMessage(newBannedMessage);
+            if (newBannedMessage.Banned)
+            {
+                await Clients.Caller.ConfirmBannedMessageUpdate(BannedMessageConfirmation.MessageDeleted);
+            }
+            else
+            {
+                await Clients.Caller.ConfirmBannedMessageUpdate(BannedMessageConfirmation.MessageAdded);
+            }
+            
+        }
+
         public async Task LoadSubReplies(string id)
         {
             List<ThreadView> newReplies = _messageService.GetNextReplies(id);
@@ -107,7 +168,7 @@ namespace ringkey.Logic.Hubs
         /// <returns>the profile data to display in the browser</returns>
         public async Task GetProfile(string id)
         {
-            Profile profile= _unitOfWork.Account.GetProfileById(id);
+            Profile profile = _unitOfWork.Account.GetProfileById(id);
 
             await Clients.Caller.SendProfile(profile);
         }
