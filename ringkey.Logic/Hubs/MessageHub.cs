@@ -91,6 +91,7 @@ namespace ringkey.Logic.Hubs
         }
         public async Task CreateRole(NewRole newRole)
         {
+            Console.WriteLine("Received!");
             List<Permission> perms = new List<Permission>();
             if(newRole.Permissions != null)
             {
@@ -102,6 +103,7 @@ namespace ringkey.Logic.Hubs
                     });
                 }
             }
+            Console.WriteLine("Done processing!");
 
             if (newRole.Name.Length <= 2)
                 await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTooShort);
@@ -120,6 +122,8 @@ namespace ringkey.Logic.Hubs
                 _unitOfWork.SaveChanges();
                 await Clients.Caller.ConfirmRoleCreation(RoleCreationError.Success);
             }
+
+            Console.WriteLine("Reply Sent!");
                 
         }
         public async Task GetRoleList()
