@@ -16,6 +16,7 @@ namespace ringkey.Common.Models.Messages
         public long Created { get; set; }
         public int Replies { get; set; }
         public bool Pinned { get; set; }
+        public bool Locked { get; set; }
         public bool Guest { get; set; }
         
         public List<ThreadView> ReplyContent { get; set; }

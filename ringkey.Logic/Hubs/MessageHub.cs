@@ -60,8 +60,8 @@ namespace ringkey.Logic.Hubs
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
-            
-            if(Context.Items.ContainsKey("account"))
+            Console.WriteLine(message.Parent);
+            if(Context.Items.ContainsKey("account") && _unitOfWork.Message.GetById(message.Parent).locked == false)
                 error = _messageService.CreateReply(message, (Account)Context.Items["account"]);
             else
                 error = _messageService.CreateReply(message, null);
@@ -85,7 +85,9 @@ namespace ringkey.Logic.Hubs
                     Parent = message.Parent?.Id.ToString(),
                     Title = message.Title,
                     Created = message.Created,
-                    Attachments = message.Attachments
+                    Attachments = message.Attachments,
+                    Locked = message.locked
+                    
                 },
                 Children = _messageService.GetMessageReplies(id)
             });
@@ -108,6 +110,35 @@ namespace ringkey.Logic.Hubs
             Profile profile= _unitOfWork.Account.GetProfileById(id);
 
             await Clients.Caller.SendProfile(profile);
+        }
+
+        public async Task TogglePostPin(string postId)
+        {
+            var pin = _unitOfWork.Message.GetMessageById(postId);
+            if (pin.Pinned == false)
+            {
+                pin.Pinned = true;
+            }
+            else{
+                pin.Pinned = false;
+            }
+            _unitOfWork.SaveChanges();
+        }
+
+        public async Task LockPost(string postId)
+        {
+            var locked = _unitOfWork.Message.GetMessageById(postId);
+            if (locked.locked == false)
+            {
+                locked.locked = true;
+                _unitOfWork.Message.LockAllChildren(postId,true);
+            }
+            else
+            {
+                locked.locked = false;
+                _unitOfWork.Message.LockAllChildren(postId,false);
+            }
+            _unitOfWork.SaveChanges();
         }
     }
 }

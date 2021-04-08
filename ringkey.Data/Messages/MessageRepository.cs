@@ -146,6 +146,20 @@ namespace ringkey.Data.Messages
                 .ToList();
         }
 
+        public Message GetMessageById(string PostId)
+        {
+            return _dbContext.Message
+                .Where(a => a.Id.ToString() == PostId).FirstOrDefault();
+        }
+
+        public void LockAllChildren(string PostId,bool lockValue)
+        {
+            foreach (Message msg in _dbContext.Message.Where(a => a.Parent.Id.ToString() == PostId).ToList()) 
+            {
+                msg.locked = lockValue;
+            }
+        }
+
         public MessageRepository(RingkeyDbContext context) : base(context)
         {
         }

@@ -113,7 +113,7 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = 0
+                    Replies = 0,
                 }).ToList();
             }
 
