@@ -12,7 +12,7 @@ namespace ringkey.Data.Roles
     {
         public Role GetByName(string name)
         {
-            return _dbContext.Role.FirstOrDefault(r => r.Name == name);
+            return _dbContext.Role.Include(a => a.Permissions).FirstOrDefault(r => r.Name == name);
         }
         public List<Role> GetAllRoles()
         {

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ringkey.Data.Accounts;
 using ringkey.Data.BannedWords;
 using ringkey.Data.Messages;
+using ringkey.Data.Permissions;
 using ringkey.Data.Reports;
 using ringkey.Data.Roles;
 
@@ -17,7 +18,7 @@ namespace ringkey.Data
         public IBannedWordsRepository BannedWords { get; private set; }
         public IReportRepository Report { get; private set; }
         public IRoleRepository Role { get; private set; }
-
+        public IPermissionRepository Permission { get; private set; }
         private RingkeyDbContext _context;
 
         public UnitOfWork(RingkeyDbContext context)
@@ -29,6 +30,7 @@ namespace ringkey.Data
             BannedWords = new BannedWordsRepository(_context);
             Report = new ReportRepository(_context);
             Role = new RoleRepository(_context);
+            Permission = new PermissionRepository(_context);
         }
 
         public void SaveChanges()

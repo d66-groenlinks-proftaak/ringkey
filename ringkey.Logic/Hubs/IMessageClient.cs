@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ringkey.Common.Models;
 using ringkey.Common.Models.Messages;
+using ringkey.Common.Models.Roles;
 
 namespace ringkey.Logic.Hubs
 {
@@ -19,8 +20,9 @@ namespace ringkey.Logic.Hubs
         Task SendChildren(List<ThreadView> children);
 
         Task SendShadowBannedMessages(List<ThreadView> messages);
-        Task ConfirmRoleCreation(bool RoleConfirmation);
+        Task ConfirmRoleCreation(RoleCreationError error);
         Task ReceiveRoleList(List<Role> roleList);
         Task ConfirmBannedMessageUpdate(BannedMessageConfirmation confirmation);
+        Task ConfirmRoleEdit(bool success);
     }
 }
