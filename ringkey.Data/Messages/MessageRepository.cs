@@ -17,9 +17,11 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
-                .Include(msg => msg.Parent)
                 .Take(10)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
         
@@ -29,9 +31,11 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
-                .Include(msg => msg.Parent)
                 .Take(10)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
         
@@ -43,9 +47,11 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
-                .Include(msg => msg.Parent)
                 .Take(10)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
 
@@ -90,18 +96,7 @@ namespace ringkey.Data.Messages
                     msg.Parent.Id.ToString() == id)
                 .OrderByDescending(msg => msg.Created)
                 .Take(3)
-                .Include(msg => msg.Author).Select(c => new ThreadView()
-                {
-                    Author = $"{c.Author.FirstName} {c.Author.LastName}",
-                    AuthorId = c.Author.Id.ToString(),
-                    Content = c.Content,
-                    Id = c.Id,
-                    Parent = c.Parent.Id.ToString(),
-                    Created = c.Created,
-                    Pinned = c.Pinned,
-                    Guest = false,
-                    ReplyContent = new List<ThreadView>()
-                }).ToList();
+                .Include(msg => msg.Author).Select(c => c.GetThreadView()).ToList();
         }
 
         public List<Message> GetNextReplies(string id)
@@ -124,6 +119,7 @@ namespace ringkey.Data.Messages
         {
             Message msg = _dbContext.Message
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
                 .Include(msg => msg.Attachments)
@@ -143,6 +139,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => !msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
                 .ToList();

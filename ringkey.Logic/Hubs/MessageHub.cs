@@ -156,19 +156,7 @@ namespace ringkey.Logic.Hubs
 
             await Clients.Caller.SendThreadDetails(new Thread()
             {
-                Parent = new ThreadView()
-                {
-                    Author = $"{message.Author.FirstName} {message.Author.LastName}",
-                    AuthorId = message.Author.Id.ToString(),
-                    Content = message.Content,
-                    Id = message.Id,
-                    Parent = message.Parent?.Id.ToString(),
-                    Title = message.Title,
-                    Created = message.Created,
-                    Attachments = message.Attachments,
-                    Locked = message.locked
-                    
-                },
+                Parent = message.GetThreadView(),
                 Children = _messageService.GetMessageReplies(id)
             });
         }
