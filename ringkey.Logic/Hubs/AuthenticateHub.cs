@@ -16,7 +16,8 @@ namespace ringkey.Logic.Hubs
                 {
                     Email = acc.Email,
                     AccountId = acc.Id.ToString(),
-                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email))
+                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(acc.Email)),
+                    Permissions = Utility.GetPermissionsFromRoles(acc.Roles)
                 });
 
                 Context.Items["account"] = acc;
@@ -34,7 +35,8 @@ namespace ringkey.Logic.Hubs
                 {
                     Email = account.Email,
                     AccountId = acc.Id.ToString(),
-                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email))
+                    Token = Utility.GenerateJwtToken(_unitOfWork.Account.GetByEmail(account.Email)),
+                    Permissions = Utility.GetPermissionsFromRoles(acc.Roles)
                 });
 
                 Context.Items["account"] = acc;
@@ -56,7 +58,8 @@ namespace ringkey.Logic.Hubs
                 await Clients.Caller.Authenticated(new AuthenticateResponse()
                 {
                     Email = account.Email,
-                    Token = Utility.GenerateJwtToken(acc)
+                    Token = Utility.GenerateJwtToken(acc),
+                    Permissions = Utility.GetPermissionsFromRoles(acc.Roles) 
                 });
                 
                 Context.Items["account"] = acc;
