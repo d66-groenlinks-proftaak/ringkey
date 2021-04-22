@@ -37,7 +37,8 @@ namespace ringkey.Common.Models.Messages
                     Created = Created,
                     Pinned = Pinned,
                     Guest =  Author.Roles.Any(e => e.Name == "Guest"),
-                    Replies = Children.Count()
+                    Replies = Children.Count(),
+                    Role = Author.Roles.First().Name
                 };
         }
 
