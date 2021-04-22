@@ -91,7 +91,6 @@ namespace ringkey.Logic.Hubs
         }
         public async Task CreateRole(NewRole newRole)
         {
-            Console.WriteLine("Received!");
             List<Permission> perms = new List<Permission>();
             if(newRole.Permissions != null)
             {
@@ -103,7 +102,6 @@ namespace ringkey.Logic.Hubs
                     });
                 }
             }
-            Console.WriteLine("Done processing!");
 
             if (newRole.Name.Length <= 2)
                 await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTooShort);
@@ -122,9 +120,6 @@ namespace ringkey.Logic.Hubs
                 _unitOfWork.SaveChanges();
                 await Clients.Caller.ConfirmRoleCreation(RoleCreationError.Success);
             }
-
-            Console.WriteLine("Reply Sent!");
-                
         }
         public async Task GetRoleList()
         {
@@ -135,7 +130,6 @@ namespace ringkey.Logic.Hubs
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
-            Console.WriteLine(message.Parent);
             if(Context.Items.ContainsKey("account") && _unitOfWork.Message.GetById(message.Parent).locked == false)
                 error = _messageService.CreateReply(message, (Account)Context.Items["account"]);
             else
@@ -145,6 +139,15 @@ namespace ringkey.Logic.Hubs
                 await Clients.Caller.MessageCreationError(error);
         }
 
+        public async Task CreatePoll(NewPoll newPoll)
+        {
+            Poll poll = _unitOfWork.Poll.AddNewPoll(newPoll);
+            _unitOfWork.SaveChanges();
+            if (poll != null)
+                await Clients.Caller.ConfirmPollCreation(true);
+            else
+                await Clients.Caller.ConfirmPollCreation(false);
+        }
         public async Task GetShadowBannedMessages()
         {
             await Clients.Caller.SendShadowBannedMessages(_messageService.GetShadowBannedMessages());
