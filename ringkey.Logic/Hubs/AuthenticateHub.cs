@@ -46,7 +46,7 @@ namespace ringkey.Logic.Hubs
         }
 
         public async Task Register(AccountRegister account)
-        {
+         {
             AccountError error = _accountService.Register(account);
 
             if (error != AccountError.NoError)

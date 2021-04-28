@@ -33,11 +33,15 @@ namespace ringkey.Logic.Accounts
             List < Permissions > permissions = new List<Permissions>();
             foreach(Role role in roles)
             {
-                foreach(Permission perm in role.Permissions)
+                if(role.Permissions != null)
                 {
-                    if (!permissions.Contains(perm.Perm))
-                        permissions.Add(perm.Perm);
+                    foreach(Permission perm in role.Permissions)
+                    {
+                        if (!permissions.Contains(perm.Perm))
+                            permissions.Add(perm.Perm);
+                    }
                 }
+                
             }
             return permissions;
         }
