@@ -12,12 +12,12 @@ namespace ringkey.Data.Accounts
     {        
         public Account GetByEmail(string email)
         {
-            return _dbContext.Account.Include(acc => acc.Roles).FirstOrDefault(acc => acc.Email == email);
+            return _dbContext.Account.Include(acc => acc.Roles).ThenInclude(role => role.Permissions).FirstOrDefault(acc => acc.Email == email);
         }
 
         public Account GetById(string id)
         {
-            return _dbContext.Account.Include(acc => acc.Roles).FirstOrDefault(acc => acc.Id.ToString() == id);
+            return _dbContext.Account.Include(acc => acc.Roles).ThenInclude(role => role.Permissions).FirstOrDefault(acc => acc.Id.ToString() == id);
         }
 
         public Profile GetProfileById(string id)
