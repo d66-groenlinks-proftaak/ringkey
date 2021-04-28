@@ -16,6 +16,7 @@ namespace ringkey.Common.Models.Messages
         public bool Processed { get; set; }
         public bool Pinned { get; set; }
         public bool locked { get; set; }
+        public bool Announcement { get; set; }
         public int Views { get; set; }
         public List<Message> Children { get; set; }
         public List<MessageTag> Tags { get; set; } 
