@@ -14,6 +14,7 @@ namespace ringkey.Data
         public DbSet<BannedWord> BannedWords { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<Permission> Permission { get; set; }
+        public DbSet<Poll> Poll { get; set; }
         public RingkeyDbContext(DbContextOptions options) : base(options) {}
     }
 }
