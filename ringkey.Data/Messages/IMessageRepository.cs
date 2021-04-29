@@ -8,6 +8,7 @@ namespace ringkey.Data.Messages
     public interface IMessageRepository : IRepository<Message>
     {
         List<Message> GetLatest(int amount);
+        List<Message> GetLatestWithTag(string tag, int amount);
         List<Message> GetAnnouncement();
         List<Message> GetOldest(int amount);
         List<Message> GetTop(int amount);
