@@ -8,6 +8,5 @@ namespace ringkey.Common.Models
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public int VoteCount { get; set; }
     }
 }

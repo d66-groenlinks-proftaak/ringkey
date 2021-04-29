@@ -48,7 +48,7 @@ namespace ringkey.Logic.Hubs
         {
             if (Context.Items.ContainsKey("account"))
             {
-                Account account = (Account)Context.Items["account"];
+                Account account = (Account) Context.Items["account"];
                 Account newAccount = _unitOfWork.Account.GetById(account.Id.ToString());
 
                 Report report = new Report()
@@ -62,8 +62,10 @@ namespace ringkey.Logic.Hubs
                 _unitOfWork.SaveChanges();
                 await Clients.Caller.ConfirmReport(true);
             }
+
             await Clients.Caller.ConfirmReport(false);
         }
+
         public async Task EditRole(NewRole newRole)
         {
             List<Permission> perms = new List<Permission>();
@@ -73,7 +75,7 @@ namespace ringkey.Logic.Hubs
                 {
                     perms.Add(new Permission()
                     {
-                        Perm = (Permissions)perm.Code
+                        Perm = (Permissions) perm.Code
                     });
                 }
             }
@@ -89,16 +91,17 @@ namespace ringkey.Logic.Hubs
             else
                 await Clients.Caller.ConfirmRoleEdit(false);
         }
+
         public async Task CreateRole(NewRole newRole)
         {
             List<Permission> perms = new List<Permission>();
-            if(newRole.Permissions != null)
+            if (newRole.Permissions != null)
             {
                 foreach (NewPermission perm in newRole.Permissions)
                 {
                     perms.Add(new Permission()
                     {
-                        Perm = (Permissions)perm.Code
+                        Perm = (Permissions) perm.Code
                     });
                 }
             }
@@ -108,7 +111,7 @@ namespace ringkey.Logic.Hubs
             else if (newRole.Name.Length >= 20)
                 await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTooLong);
             else if (_unitOfWork.Role.GetByName(newRole.Name) != null)
-                await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTaken);            
+                await Clients.Caller.ConfirmRoleCreation(RoleCreationError.NameTaken);
             else
             {
                 Role role = new Role()
@@ -121,17 +124,48 @@ namespace ringkey.Logic.Hubs
                 await Clients.Caller.ConfirmRoleCreation(RoleCreationError.Success);
             }
         }
+
         public async Task GetRoleList()
         {
-            List<Role> roles = _unitOfWork.Role.GetAllRoles(); 
+            List<Role> roles = _unitOfWork.Role.GetAllRoles();
 
             await Clients.Caller.ReceiveRoleList(roles);
         }
+
+        public async Task GetLatestPoll()
+        {
+            Account _account = new();
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account) Context.Items["account"];
+                _account = _unitOfWork.Account.GetById(account.Id.ToString());
+            }
+            
+            if (!_unitOfWork.Poll.CheckIfVoted(_account))
+                await Clients.Caller.ReceiveLatestPoll(_unitOfWork.Poll.GetPollToSend());
+            else
+                await Clients.Caller.ReceivePollResults(_unitOfWork.Poll.GetPollResults());
+        }
+
+        public async Task VoteOnPoll(NewVoteOptions voteOptions)
+        {
+            Account _account = new();
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account) Context.Items["account"];
+                 _account = _unitOfWork.Account.GetById(account.Id.ToString());
+            }
+            
+            _unitOfWork.Poll.VotePoll(_account, voteOptions);
+            _unitOfWork.SaveChanges();
+            await Clients.Caller.ReceivePollResults(_unitOfWork.Poll.GetPollResults());
+        }
+
         public async Task CreateReply(NewReply message)
         {
             MessageErrors error;
-            if(Context.Items.ContainsKey("account") && _unitOfWork.Message.GetById(message.Parent).locked == false)
-                error = _messageService.CreateReply(message, (Account)Context.Items["account"]);
+            if (Context.Items.ContainsKey("account") && _unitOfWork.Message.GetById(message.Parent).locked == false)
+                error = _messageService.CreateReply(message, (Account) Context.Items["account"]);
             else
                 error = _messageService.CreateReply(message, null);
 
@@ -148,6 +182,7 @@ namespace ringkey.Logic.Hubs
             else
                 await Clients.Caller.ConfirmPollCreation(false);
         }
+
         public async Task GetShadowBannedMessages()
         {
             await Clients.Caller.SendShadowBannedMessages(_messageService.GetShadowBannedMessages());
@@ -170,13 +205,13 @@ namespace ringkey.Logic.Hubs
                     Created = message.Created,
                     Attachments = message.Attachments,
                     Locked = message.locked
-                    
+
                 },
                 Children = _messageService.GetMessageReplies(id)
             });
         }
 
-        public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage) 
+        public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage)
         {
             _messageService.UpdateBannedMessage(newBannedMessage);
             if (newBannedMessage.Banned)
@@ -187,7 +222,7 @@ namespace ringkey.Logic.Hubs
             {
                 await Clients.Caller.ConfirmBannedMessageUpdate(BannedMessageConfirmation.MessageAdded);
             }
-            
+
         }
 
         public async Task LoadSubReplies(string id)
@@ -216,9 +251,11 @@ namespace ringkey.Logic.Hubs
             {
                 pin.Pinned = true;
             }
-            else{
+            else
+            {
                 pin.Pinned = false;
             }
+
             _unitOfWork.SaveChanges();
         }
 
@@ -228,13 +265,14 @@ namespace ringkey.Logic.Hubs
             if (locked.locked == false)
             {
                 locked.locked = true;
-                _unitOfWork.Message.LockAllChildren(postId,true);
+                _unitOfWork.Message.LockAllChildren(postId, true);
             }
             else
             {
                 locked.locked = false;
-                _unitOfWork.Message.LockAllChildren(postId,false);
+                _unitOfWork.Message.LockAllChildren(postId, false);
             }
+
             _unitOfWork.SaveChanges();
         }
     }

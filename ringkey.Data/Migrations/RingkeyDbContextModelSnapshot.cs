@@ -208,14 +208,40 @@ namespace ringkey.Data.Migrations
                     b.Property<Guid?>("PollId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("VoteCount")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PollId");
 
                     b.ToTable("PollOption");
+                });
+
+            modelBuilder.Entity("ringkey.Common.Models.PollVote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("PollId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("PollOptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("PollId");
+
+                    b.HasIndex("PollOptionId");
+
+                    b.ToTable("PollVote");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Report", b =>
@@ -316,6 +342,25 @@ namespace ringkey.Data.Migrations
                         .HasForeignKey("PollId");
                 });
 
+            modelBuilder.Entity("ringkey.Common.Models.PollVote", b =>
+                {
+                    b.HasOne("ringkey.Common.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("ringkey.Common.Models.Poll", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("PollId");
+
+                    b.HasOne("ringkey.Common.Models.PollOption", "PollOption")
+                        .WithMany()
+                        .HasForeignKey("PollOptionId");
+
+                    b.Navigation("Account");
+
+                    b.Navigation("PollOption");
+                });
+
             modelBuilder.Entity("ringkey.Common.Models.Report", b =>
                 {
                     b.HasOne("ringkey.Common.Models.Account", "Account")
@@ -352,6 +397,8 @@ namespace ringkey.Data.Migrations
             modelBuilder.Entity("ringkey.Common.Models.Poll", b =>
                 {
                     b.Navigation("Options");
+
+                    b.Navigation("Votes");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Role", b =>

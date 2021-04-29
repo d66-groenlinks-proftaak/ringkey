@@ -25,5 +25,7 @@ namespace ringkey.Logic.Hubs
         Task ConfirmBannedMessageUpdate(BannedMessageConfirmation confirmation);
         Task ConfirmRoleEdit(bool success);
         Task ConfirmPollCreation(bool success);
+        Task ReceiveLatestPoll(PollToSend poll);
+        Task ReceivePollResults(PollResults results);
     }
 }
