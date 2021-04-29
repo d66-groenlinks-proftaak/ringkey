@@ -252,38 +252,12 @@ namespace ringkey.Logic.Hubs
         public async Task TogglePostPin(string postId)
         {
 
-            var pin = _unitOfWork.Message.GetMessageById(postId);
-            if (pin.Pinned == false)
-            {
-                pin.Pinned = true;
-            }
-            else
-            {
-                pin.Pinned = false;
-            }
-
-            _unitOfWork.SaveChanges();
-
                 _unitOfWork.Message.PinMessage(postId);
 
         }
 
         public async Task LockPost(string postId)
         {
-
-            var locked = _unitOfWork.Message.GetMessageById(postId);
-            if (locked.locked == false)
-            {
-                locked.locked = true;
-                _unitOfWork.Message.LockAllChildren(postId, true);
-            }
-            else
-            {
-                locked.locked = false;
-                _unitOfWork.Message.LockAllChildren(postId, false);
-            }
-
-            _unitOfWork.SaveChanges();
                 _unitOfWork.Message.LockMessage(postId);
         }
     }
