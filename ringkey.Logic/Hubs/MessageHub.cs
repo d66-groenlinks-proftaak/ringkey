@@ -44,6 +44,11 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
         }
 
+        public async Task RequestAnnouncement()
+        {
+            await Clients.Caller.SendAnnouncements(_messageService.GetAnnouncements());
+        }
+
         public async Task ReportMessage(NewReport newReport) // ur reported dude
         {
             if (Context.Items.ContainsKey("account"))
@@ -246,6 +251,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task TogglePostPin(string postId)
         {
+
             var pin = _unitOfWork.Message.GetMessageById(postId);
             if (pin.Pinned == false)
             {
@@ -257,10 +263,14 @@ namespace ringkey.Logic.Hubs
             }
 
             _unitOfWork.SaveChanges();
+
+                _unitOfWork.Message.PinMessage(postId);
+
         }
 
         public async Task LockPost(string postId)
         {
+
             var locked = _unitOfWork.Message.GetMessageById(postId);
             if (locked.locked == false)
             {
@@ -274,6 +284,7 @@ namespace ringkey.Logic.Hubs
             }
 
             _unitOfWork.SaveChanges();
+                _unitOfWork.Message.LockMessage(postId);
         }
     }
 }

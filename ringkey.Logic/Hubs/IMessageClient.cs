@@ -8,6 +8,7 @@ namespace ringkey.Logic.Hubs
 {
     public interface IMessageClient
     {
+        Task SendAnnouncements(List<ThreadView> message);
         Task SendThreads(List<ThreadView> message);
         Task SendMessage(ThreadView message);
         Task SendThreadDetails(Thread thread);
