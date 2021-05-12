@@ -8,6 +8,7 @@ namespace ringkey.Logic.Hubs
 {
     public interface IMessageClient
     {
+        Task SendAnnouncements(List<ThreadView> message);
         Task SendThreads(List<ThreadView> message);
         Task SendMessage(ThreadView message);
         Task SendThreadDetails(Thread thread);
@@ -24,5 +25,8 @@ namespace ringkey.Logic.Hubs
         Task ReceiveRoleList(List<Role> roleList);
         Task ConfirmBannedMessageUpdate(BannedMessageConfirmation confirmation);
         Task ConfirmRoleEdit(bool success);
+        Task ConfirmPollCreation(bool success);
+        Task ReceiveLatestPoll(PollToSend poll);
+        Task ReceivePollResults(PollResults results);
     }
 }
