@@ -218,6 +218,28 @@ namespace ringkey.Data.Messages
 
         }
 
+        public void SetAnnouncement(string PostId)
+        {
+            if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault() == null)
+            {
+                _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+                _dbContext.SaveChanges();
+
+            }
+            else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type != MessageTagType.Announcement)
+            {
+                _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+                _dbContext.SaveChanges();
+            }
+            else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type == MessageTagType.Announcement)
+            {
+                _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Announcement).FirstOrDefault());
+                _dbContext.SaveChanges();
+
+            }
+
+        }
+
         public MessageRepository(RingkeyDbContext context) : base(context)
         {
         }
