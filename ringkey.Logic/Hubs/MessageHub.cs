@@ -260,5 +260,10 @@ namespace ringkey.Logic.Hubs
         {
                 _unitOfWork.Message.LockMessage(postId);
         }
+
+        public async Task SetAnnouncement(string postId)
+        {
+            _unitOfWork.Message.LockMessage(postId);
+        }
     }
 }
