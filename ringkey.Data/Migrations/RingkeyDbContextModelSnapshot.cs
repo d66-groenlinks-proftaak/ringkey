@@ -38,6 +38,9 @@ namespace ringkey.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Biography")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Email")
                         .HasColumnType("longtext");
 
@@ -48,6 +51,9 @@ namespace ringkey.Data.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ProfilePicture")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

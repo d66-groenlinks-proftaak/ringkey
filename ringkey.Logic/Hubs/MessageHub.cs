@@ -249,6 +249,25 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.SendProfile(profile);
         }
 
+        public async Task UpdateProfile(UpdateProfile updates)
+        {
+            Account _account = new();
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account) Context.Items["account"];
+                _account = _unitOfWork.Account.GetById(account.Id.ToString());
+            }
+            else
+            {
+                return;
+            }
+
+            _account.Biography = updates.Biography;
+            _account.ProfilePicture = updates.Avatar;
+            
+            _unitOfWork.SaveChanges();
+        }
+
         public async Task TogglePostPin(string postId)
         {
 
