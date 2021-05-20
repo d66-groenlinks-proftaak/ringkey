@@ -24,6 +24,19 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Children)
                 .ToList();
         }
+        public List<Message> GetLatestWithTag(string tag, int amount)
+        {
+            return _dbContext.Message
+                .Include(msg => msg.Tags)
+                .Where(msg => msg.Tags
+                .Any(a => a.Name == tag))
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenByDescending(msg => msg.Created)
+                .Take(10)
+                .Include(msg => msg.Author)
+                .ToList();
+        }
 
         public List<Message> GetAnnouncement()
         {
@@ -209,6 +222,28 @@ namespace ringkey.Data.Messages
             else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type == MessageTagType.Pin)
             {
                 _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Pin).FirstOrDefault());
+                _dbContext.SaveChanges();
+
+            }
+
+        }
+
+        public void SetAnnouncement(string PostId)
+        {
+            if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault() == null)
+            {
+                _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+                _dbContext.SaveChanges();
+
+            }
+            else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type != MessageTagType.Announcement)
+            {
+                _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+                _dbContext.SaveChanges();
+            }
+            else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type == MessageTagType.Announcement)
+            {
+                _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Announcement).FirstOrDefault());
                 _dbContext.SaveChanges();
 
             }

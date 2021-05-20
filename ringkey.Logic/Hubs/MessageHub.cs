@@ -35,13 +35,13 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestSortedList(MessageSortType type)
         {
-            await Clients.Caller.SendThreads(_messageService.GetLatest(10, type));
+            await Clients.Caller.SendThreads(_messageService.GetLatest("Alle berichten", 10, type));
 
         }
 
-        public async Task RequestUpdate()
+        public async Task RequestUpdate(string tag)
         {
-            await Clients.Caller.SendThreads(_messageService.GetLatest(10));
+            await Clients.Caller.SendThreads(_messageService.GetLatest(tag, 10));
         }
 
         public async Task RequestAnnouncement()
@@ -278,6 +278,11 @@ namespace ringkey.Logic.Hubs
         public async Task LockPost(string postId)
         {
                 _unitOfWork.Message.LockMessage(postId);
+        }
+
+        public async Task SetAnnouncement(string postId)
+        {
+            _unitOfWork.Message.LockMessage(postId);
         }
     }
 }
