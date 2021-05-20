@@ -118,6 +118,19 @@ namespace ringkey.Logic
             return SendNew;
         }
 
+        public void EditMessage(NewEditMessage newEditMessage)
+        {
+            Message message = GetMessageDetails(newEditMessage.MessageId);
+            if (message == null)
+                return;
+
+            message.Processed = false;
+            message.Title = newEditMessage.Title;
+            message.Content = newEditMessage.Content;
+
+            _unitOfWork.SaveChanges();
+        }
+
         public MessageErrors CreateReply(NewReply message, Account authenticated)
         {
             MessageErrors error;

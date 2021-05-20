@@ -173,6 +173,12 @@ namespace ringkey.Logic.Hubs
             });
         }
 
+        public async Task EditMessage(NewEditMessage newEditMessage)
+        {
+            _messageService.EditMessage(newEditMessage);
+
+        }
+
         public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage) 
         {
             _messageService.UpdateBannedMessage(newBannedMessage);
