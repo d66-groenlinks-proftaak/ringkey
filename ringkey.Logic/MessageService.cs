@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using ringkey.Common.Models;
 using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
@@ -79,8 +80,22 @@ namespace ringkey.Logic
                 Title = message.Title,
                 Processed = false,
                 Pinned = false,
-                Attachments = attachments
+                Attachments = attachments,
+                Tags = new List<MessageTag>()
             };
+
+            string[] tags = JsonSerializer.Deserialize<string[]>(message.Categories[0]);
+
+            if (tags != null) foreach (string name in tags)
+            {
+                Console.WriteLine(name);
+                newMessage.Tags.Add(new MessageTag
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name,
+                    Type = MessageTagType.Category
+                });
+            }
 
             _unitOfWork.Message.Add(newMessage);
 
@@ -195,14 +210,16 @@ namespace ringkey.Logic
             return MessageErrors.NoError;
         }
 
-        public List<ThreadView> GetLatest(int amount, MessageSortType sort = MessageSortType.New)
+        public List<ThreadView> GetLatest(string tag, int amount, MessageSortType sort = MessageSortType.New)
         {
             if(sort == MessageSortType.Top)
                 return GetTop(10);
             if(sort == MessageSortType.Old)
                 return GetOldest(10);
-            
-            List<Message> messages = _unitOfWork.Message.GetLatest(amount);
+
+            List<Message> messages = new List<Message>();
+            if (tag == "Alle Berichten") messages = _unitOfWork.Message.GetLatest(amount);
+            else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)

@@ -22,6 +22,19 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Author)
                 .ToList();
         }
+        public List<Message> GetLatestWithTag(string tag, int amount)
+        {
+            return _dbContext.Message
+                .Include(msg => msg.Tags)
+                .Where(msg => msg.Tags
+                .Any(a => a.Name == tag))
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenByDescending(msg => msg.Created)
+                .Take(10)
+                .Include(msg => msg.Author)
+                .ToList();
+        }
 
         public List<Message> GetAnnouncement()
         {
