@@ -11,7 +11,9 @@ namespace ringkey.Data.Messages
         List<Message> GetLatestWithTag(string tag, int amount);
         List<Message> GetAnnouncement();
         List<Message> GetOldest(int amount);
+        List<Message> GetOldestWithTag(string tag, int amount);
         List<Message> GetTop(int amount);
+        List<Message> GetTopWithTag(string tag, int amount);
         List<Message> GetReplies(string id);
         Message GetById(string id, bool requiresProcessing = true);
         List<Message> GetUnprocessed();

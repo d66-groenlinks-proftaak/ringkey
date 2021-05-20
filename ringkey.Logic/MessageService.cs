@@ -201,14 +201,31 @@ namespace ringkey.Logic
 
         public List<ThreadView> GetLatest(string tag, int amount, MessageSortType sort = MessageSortType.New)
         {
-            if(sort == MessageSortType.Top)
-                return GetTop(10);
-            if(sort == MessageSortType.Old)
-                return GetOldest(10);
+            bool all = tag.ToLower() == "alle berichten";
 
             List<Message> messages = new List<Message>();
-            if (tag == "Alle Berichten") messages = _unitOfWork.Message.GetLatest(amount);
+<<<<<<< Updated upstream
+            if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
             else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
+=======
+            
+            switch (sort)
+            {
+                case MessageSortType.Top:
+                    if (all) return GetTop(10);
+                    else messages = _unitOfWork.Message.GetTopWithTag(tag, amount);
+                    break;
+                case MessageSortType.Old:
+                    if (all) return GetOldest(10);
+                    else messages = _unitOfWork.Message.GetOldestWithTag(tag, amount);
+                    break;
+                case MessageSortType.New:
+                    if (all) messages = _unitOfWork.Message.GetLatest(amount);
+                    else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
+                    break;
+            }
+
+>>>>>>> Stashed changes
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)
