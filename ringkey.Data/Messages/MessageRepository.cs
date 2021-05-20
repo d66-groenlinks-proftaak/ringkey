@@ -17,8 +17,12 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Tags.Where(tag=> tag.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
+<<<<<<< Updated upstream
                 .Include(msg => msg.Parent)
                 .Take(10)
+=======
+                .Take(amount)
+>>>>>>> Stashed changes
                 .Include(msg => msg.Author)
                 .ToList();
         }
@@ -31,8 +35,11 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
-                .Take(10)
+                .Take(amount)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
 
@@ -51,8 +58,26 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
+<<<<<<< Updated upstream
                 .Include(msg => msg.Parent)
                 .Take(10)
+=======
+                .Take(amount)
+                .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
+                .ToList();
+        }
+
+        public List<Message> GetOldestWithTag(string tag, int amount)
+        {
+            return _dbContext.Message
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null && msg.Tags.Any(a => a.Name == tag))
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenBy(msg => msg.Created)
+                .Take(amount)
+>>>>>>> Stashed changes
                 .Include(msg => msg.Author)
                 .ToList();
         }
@@ -65,8 +90,28 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
+<<<<<<< Updated upstream
                 .Include(msg => msg.Parent)
                 .Take(10)
+=======
+                .Take(amount)
+                .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
+                .ToList();
+        }
+
+        public List<Message> GetTopWithTag(string tag, int amount)
+        {
+            long lastSeven = DateTimeOffset.Now.AddDays(-7).ToUnixTimeMilliseconds();
+
+            return _dbContext.Message
+                .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null && msg.Tags.Any(a => a.Name == tag))
+                .OrderByDescending(msg => msg.Pinned)
+                .ThenByDescending(msg => msg.Views)
+                .Take(amount)
+>>>>>>> Stashed changes
                 .Include(msg => msg.Author)
                 .ToList();
         }
