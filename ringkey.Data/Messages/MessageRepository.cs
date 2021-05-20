@@ -17,13 +17,11 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Tags.Where(tag=> tag.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
-<<<<<<< Updated upstream
-                .Include(msg => msg.Parent)
-                .Take(10)
-=======
                 .Take(amount)
->>>>>>> Stashed changes
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
         public List<Message> GetLatestWithTag(string tag, int amount)
@@ -58,10 +56,6 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
-<<<<<<< Updated upstream
-                .Include(msg => msg.Parent)
-                .Take(10)
-=======
                 .Take(amount)
                 .Include(msg => msg.Author)
                 .ThenInclude(author => author.Roles)
@@ -77,8 +71,10 @@ namespace ringkey.Data.Messages
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
                 .Take(amount)
->>>>>>> Stashed changes
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
         
@@ -90,10 +86,6 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
-<<<<<<< Updated upstream
-                .Include(msg => msg.Parent)
-                .Take(10)
-=======
                 .Take(amount)
                 .Include(msg => msg.Author)
                 .ThenInclude(author => author.Roles)
@@ -111,8 +103,10 @@ namespace ringkey.Data.Messages
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
                 .Take(amount)
->>>>>>> Stashed changes
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
 
@@ -157,18 +151,7 @@ namespace ringkey.Data.Messages
                     msg.Parent.Id.ToString() == id)
                 .OrderByDescending(msg => msg.Created)
                 .Take(3)
-                .Include(msg => msg.Author).Select(c => new ThreadView()
-                {
-                    Author = $"{c.Author.FirstName} {c.Author.LastName}",
-                    AuthorId = c.Author.Id.ToString(),
-                    Content = c.Content,
-                    Id = c.Id,
-                    Parent = c.Parent.Id.ToString(),
-                    Created = c.Created,
-                    Pinned = c.Pinned,
-                    Guest = false,
-                    ReplyContent = new List<ThreadView>()
-                }).ToList();
+                .Include(msg => msg.Author).Select(c => c.GetThreadView()).ToList();
         }
 
         public List<Message> GetNextReplies(string id)
@@ -191,6 +174,7 @@ namespace ringkey.Data.Messages
         {
             Message msg = _dbContext.Message
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
                 .Include(msg => msg.Attachments)
@@ -210,6 +194,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => !msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
                 .ToList();
@@ -270,6 +255,28 @@ namespace ringkey.Data.Messages
             else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type == MessageTagType.Pin)
             {
                 _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Pin).FirstOrDefault());
+                _dbContext.SaveChanges();
+
+            }
+
+        }
+
+        public void SetAnnouncement(string PostId)
+        {
+            if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault() == null)
+            {
+                _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+                _dbContext.SaveChanges();
+
+            }
+            else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type != MessageTagType.Announcement)
+            {
+                _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+                _dbContext.SaveChanges();
+            }
+            else if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault().Type == MessageTagType.Announcement)
+            {
+                _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Announcement).FirstOrDefault());
                 _dbContext.SaveChanges();
 
             }

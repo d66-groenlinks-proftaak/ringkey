@@ -25,5 +25,6 @@ namespace ringkey.Data.Messages
         void LockMessage(string postId);
         List<Message> GetShadowBannedMessages();
         void PinMessage(string PostId);
+        void SetAnnouncement(string PostId);
     }
 }

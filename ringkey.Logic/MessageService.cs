@@ -116,18 +116,7 @@ namespace ringkey.Logic
 
             if (parent != null)
             {
-                SendNew = _unitOfWork.Message.GetNextReplies(id).Select(msg => new ThreadView {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = 0,
-                }).ToList();
+                SendNew = _unitOfWork.Message.GetNextReplies(id).Select(msg => msg.GetAsReply()).ToList();
             }
 
             return SendNew;
@@ -241,19 +230,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetThreadView());
             }
             
             return replies;
@@ -292,19 +269,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetAsReply());
             }
             
             return replies;
@@ -317,19 +282,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetAsReply());
             }
             
             return replies;
@@ -342,19 +295,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetAsReply());
             }
             
             return replies;
@@ -367,20 +308,7 @@ namespace ringkey.Logic
 
             foreach(Message msg in messages)
             {
-                threadViews.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    Title = msg.Title,
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                threadViews.Add(msg.GetAsReply());
             }
 
             return threadViews;
