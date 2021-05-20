@@ -218,7 +218,7 @@ namespace ringkey.Logic
                 return GetOldest(10);
 
             List<Message> messages = new List<Message>();
-            if (tag == "Alle Berichten") messages = _unitOfWork.Message.GetLatest(amount);
+            if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
             else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
             List<ThreadView> replies = new List<ThreadView>();
             
