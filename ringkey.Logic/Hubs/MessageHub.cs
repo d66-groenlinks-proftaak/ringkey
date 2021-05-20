@@ -251,9 +251,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task TogglePostPin(string postId)
         {
-
-                _unitOfWork.Message.PinMessage(postId);
-
+            _unitOfWork.Message.PinMessage(postId);
         }
 
         public async Task LockPost(string postId)
@@ -263,7 +261,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task SetAnnouncement(string postId)
         {
-            _unitOfWork.Message.LockMessage(postId);
+            _unitOfWork.Message.SetAnnouncement(postId);
         }
     }
 }
