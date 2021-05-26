@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Isopoh.Cryptography.Argon2;
 using Microsoft.IdentityModel.Tokens;
@@ -76,10 +77,17 @@ namespace ringkey.Logic.Accounts
             if (account.LastName.Length > 50)
                 return AccountError.LastNameTooLong;
             
-            if (account.Password.Length <= 1)
+            if (account.Password.Length <= 7)
                 return AccountError.PasswordTooShort;
             if (account.Password.Length > 50)
                 return AccountError.PasswordTooLong;
+
+            if (!account.Password.Any(char.IsUpper))
+                return AccountError.InvalidPasswordCharacters;
+            if (!account.Password.Any(char.IsLower))
+                return AccountError.InvalidPasswordCharacters;
+            if (!(account.Password.Any(char.IsNumber) || new Regex("[^a-z0-9]").IsMatch(account.Password)))
+                return AccountError.InvalidPasswordCharacters;
 
             Account tmp = _unitOfWork.Account.GetByEmail(account.Email);
             if (_unitOfWork.Account.GetByEmail(account.Email) != null)

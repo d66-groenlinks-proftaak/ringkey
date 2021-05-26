@@ -8,8 +8,12 @@ namespace ringkey.Data.Messages
     public interface IMessageRepository : IRepository<Message>
     {
         List<Message> GetLatest(int amount);
+        List<Message> GetLatestWithTag(string tag, int amount);
+        List<Message> GetAnnouncement();
         List<Message> GetOldest(int amount);
+        List<Message> GetOldestWithTag(string tag, int amount);
         List<Message> GetTop(int amount);
+        List<Message> GetTopWithTag(string tag, int amount);
         List<Message> GetReplies(string id);
         Message GetById(string id, bool requiresProcessing = true);
         List<Message> GetUnprocessed();
@@ -18,7 +22,9 @@ namespace ringkey.Data.Messages
         Message GetMessageById(string PostId);
         List<Message> GetNextReplies(string id);
         List<ThreadView> GetReplyChildren(string id);
-        void LockAllChildren(string postId, bool lockValue);
+        void LockMessage(string postId);
         List<Message> GetShadowBannedMessages();
+        void PinMessage(string PostId);
+        void SetAnnouncement(string PostId);
     }
 }
