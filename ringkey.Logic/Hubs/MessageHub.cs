@@ -145,7 +145,12 @@ namespace ringkey.Logic.Hubs
                 Account account = (Account) Context.Items["account"];
                 _account = _unitOfWork.Account.GetById(account.Id.ToString());
             }
-            
+            else
+            {
+                await Clients.Caller.ReceivePollResults(_unitOfWork.Poll.GetPollResults());
+                return;
+            }
+
             if (!_unitOfWork.Poll.CheckIfVoted(_account))
                 await Clients.Caller.ReceiveLatestPoll(_unitOfWork.Poll.GetPollToSend());
             else
