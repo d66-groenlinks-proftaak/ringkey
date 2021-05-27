@@ -218,7 +218,8 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString()),
+                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString())
                 });
             }
             
@@ -244,7 +245,9 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString()),
+                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString())
+
                 });
             }
 
@@ -344,7 +347,6 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
                     Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
                 });
             }

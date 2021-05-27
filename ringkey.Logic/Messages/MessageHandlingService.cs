@@ -76,11 +76,12 @@ namespace ringkey.Logic.Messages
                                 Content = message.Content,
                                 AuthorId = message.Author.Id.ToString(),
                                 Id = message.Id,
-                                Parent =  message.Parent?.Id.ToString(),
+                                Parent = message.Parent?.Id.ToString(),
                                 Title = message.Title,
                                 Created = message.Created,
                                 Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
-                            });
+                                ReplyContent = _unitOfWork.Message.GetReplyChildren(message.Id.ToString())
+                            }); 
                         else if (message.Type == MessageType.Reply)
                         {
                             string top = GetTopParent(message.Id.ToString()).Id.ToString();

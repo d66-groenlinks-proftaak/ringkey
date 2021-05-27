@@ -42,6 +42,9 @@ namespace ringkey.Logic.Hubs
         public async Task RequestUpdate()
         {
             await Clients.Caller.SendThreads(_messageService.GetLatest(10));
+            foreach (var t in _messageService.GetLatest(10)) {
+                Console.WriteLine(t.ReplyContent.Count);
+            }
         }
 
         public async Task RequestAnnouncement()
