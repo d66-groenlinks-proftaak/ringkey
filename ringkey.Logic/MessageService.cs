@@ -217,10 +217,10 @@ namespace ringkey.Logic
             bool all = tag.ToLower() == "alle berichten";
 
             List<Message> messages = new List<Message>();
-<<<<<<< Updated upstream
+
             if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
             else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
-=======
+
             
             switch (sort)
             {
@@ -238,7 +238,7 @@ namespace ringkey.Logic
                     break;
             }
 
->>>>>>> Stashed changes
+
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)
@@ -268,7 +268,9 @@ namespace ringkey.Logic
                     Created = msg.Created,
                     Pinned = msg.Pinned,
                     Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
+                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString()),
+                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString())
+
                 });
             }
 
@@ -321,7 +323,9 @@ namespace ringkey.Logic
 
             foreach(Message msg in messages)
             {
+
                 threadViews.Add(msg.GetAsReply());
+
             }
 
             return threadViews;

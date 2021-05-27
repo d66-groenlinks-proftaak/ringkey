@@ -71,6 +71,7 @@ namespace ringkey.Logic.Messages
 
                         if (message.Type == MessageType.Thread)
                             await _hub.Clients.Group("/").SendMessage(message.GetAsReply());
+
                         else if (message.Type == MessageType.Reply)
                         {
                             string top = GetTopParent(message.Id.ToString()).Id.ToString();

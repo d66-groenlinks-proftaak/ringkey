@@ -110,6 +110,8 @@ namespace ringkey.Data.Messages
                 .ToList();
         }
 
+
+
         public bool IsGuest(string id)
         {
             // ReSharper disable once PossibleNullReferenceException
@@ -143,12 +145,11 @@ namespace ringkey.Data.Messages
             return messages;
         }
 
+
         public List<ThreadView> GetReplyChildren(string id)
         {
             return _dbContext.Message
-                .Where(msg =>
-                    msg.Type == MessageType.Reply &&
-                    msg.Parent.Id.ToString() == id)
+                .Where(msg => msg.Type == MessageType.Reply && msg.Parent == _dbContext.Message.FirstOrDefault(_msg => _msg.Id.ToString() == id) && msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Take(3)
                 .Include(msg => msg.Author).Select(c => c.GetThreadView()).ToList();
