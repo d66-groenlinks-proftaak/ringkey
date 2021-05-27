@@ -52,6 +52,8 @@ namespace ringkey.Data.Accounts
                 FirstName = account.FirstName,
                 LastName = account.LastName,
                 Email = account.Email,
+                Biography = account.Biography,
+                Avatar = account.ProfilePicture,
                 Messages = _messages
             };
         }

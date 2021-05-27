@@ -35,16 +35,13 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestSortedList(MessageSortType type)
         {
-            await Clients.Caller.SendThreads(_messageService.GetLatest(10, type));
+            await Clients.Caller.SendThreads(_messageService.GetLatest("Alle berichten", 10, type));
 
         }
 
-        public async Task RequestUpdate()
+        public async Task RequestUpdate(string tag)
         {
-            await Clients.Caller.SendThreads(_messageService.GetLatest(10));
-            foreach (var t in _messageService.GetLatest(10)) {
-                Console.WriteLine(t.ReplyContent.Count);
-            }
+            await Clients.Caller.SendThreads(_messageService.GetLatest(tag, 10));
         }
 
         public async Task RequestAnnouncement()
@@ -219,7 +216,15 @@ namespace ringkey.Logic.Hubs
             });
         }
 
+
+        public async Task EditMessage(NewEditMessage newEditMessage)
+        {
+            _messageService.EditMessage(newEditMessage);
+
+        }
+
         public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage)
+
         {
             _messageService.UpdateBannedMessage(newBannedMessage);
             if (newBannedMessage.Banned)
@@ -252,11 +257,28 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.SendProfile(profile);
         }
 
+        public async Task UpdateProfile(UpdateProfile updates)
+        {
+            Account _account = new();
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account) Context.Items["account"];
+                _account = _unitOfWork.Account.GetById(account.Id.ToString());
+            }
+            else
+            {
+                return;
+            }
+
+            _account.Biography = updates.Biography;
+            _account.ProfilePicture = updates.Avatar;
+            
+            _unitOfWork.SaveChanges();
+        }
+
         public async Task TogglePostPin(string postId)
         {
-
-                _unitOfWork.Message.PinMessage(postId);
-
+            _unitOfWork.Message.PinMessage(postId);
         }
 
         public async Task LockPost(string postId)
@@ -266,7 +288,7 @@ namespace ringkey.Logic.Hubs
 
         public async Task SetAnnouncement(string postId)
         {
-            _unitOfWork.Message.LockMessage(postId);
+            _unitOfWork.Message.SetAnnouncement(postId);
         }
     }
 }

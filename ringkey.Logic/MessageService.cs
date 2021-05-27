@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using ringkey.Common.Models;
 using ringkey.Common.Models.Accounts;
 using ringkey.Common.Models.Messages;
@@ -79,8 +80,22 @@ namespace ringkey.Logic
                 Title = message.Title,
                 Processed = false,
                 Pinned = false,
-                Attachments = attachments
+                Attachments = attachments,
+                Tags = new List<MessageTag>()
             };
+
+            string[] tags = JsonSerializer.Deserialize<string[]>(message.Categories[0]);
+
+            if (tags != null) foreach (string name in tags)
+            {
+                Console.WriteLine(name);
+                newMessage.Tags.Add(new MessageTag
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name,
+                    Type = MessageTagType.Category
+                });
+            }
 
             _unitOfWork.Message.Add(newMessage);
 
@@ -101,21 +116,23 @@ namespace ringkey.Logic
 
             if (parent != null)
             {
-                SendNew = _unitOfWork.Message.GetNextReplies(id).Select(msg => new ThreadView {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = 0,
-                }).ToList();
+                SendNew = _unitOfWork.Message.GetNextReplies(id).Select(msg => msg.GetAsReply()).ToList();
             }
 
             return SendNew;
+        }
+
+        public void EditMessage(NewEditMessage newEditMessage)
+        {
+            Message message = GetMessageDetails(newEditMessage.MessageId);
+            if (message == null)
+                return;
+
+            message.Processed = false;
+            message.Title = newEditMessage.Title;
+            message.Content = newEditMessage.Content;
+
+            _unitOfWork.SaveChanges();
         }
 
         public MessageErrors CreateReply(NewReply message, Account authenticated)
@@ -195,32 +212,38 @@ namespace ringkey.Logic
             return MessageErrors.NoError;
         }
 
-        public List<ThreadView> GetLatest(int amount, MessageSortType sort = MessageSortType.New)
+        public List<ThreadView> GetLatest(string tag, int amount, MessageSortType sort = MessageSortType.New)
         {
-            if(sort == MessageSortType.Top)
-                return GetTop(10);
-            if(sort == MessageSortType.Old)
-                return GetOldest(10);
+            bool all = tag.ToLower() == "alle berichten";
+
+            List<Message> messages = new List<Message>();
+
+            if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
+            else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
+
             
-            List<Message> messages = _unitOfWork.Message.GetLatest(amount);
+            switch (sort)
+            {
+                case MessageSortType.Top:
+                    if (all) return GetTop(10);
+                    else messages = _unitOfWork.Message.GetTopWithTag(tag, amount);
+                    break;
+                case MessageSortType.Old:
+                    if (all) return GetOldest(10);
+                    else messages = _unitOfWork.Message.GetOldestWithTag(tag, amount);
+                    break;
+                case MessageSortType.New:
+                    if (all) messages = _unitOfWork.Message.GetLatest(amount);
+                    else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
+                    break;
+            }
+
+
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString()),
-                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString())
-                });
+                replies.Add(msg.GetThreadView());
             }
             
             return replies;
@@ -261,19 +284,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetAsReply());
             }
             
             return replies;
@@ -286,19 +297,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Title = msg.Title,
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetAsReply());
             }
             
             return replies;
@@ -311,19 +310,7 @@ namespace ringkey.Logic
             
             foreach(Message msg in messages)
             {
-                replies.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    ReplyContent = _unitOfWork.Message.GetReplyChildren(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+                replies.Add(msg.GetAsReply());
             }
             
             return replies;
@@ -336,19 +323,9 @@ namespace ringkey.Logic
 
             foreach(Message msg in messages)
             {
-                threadViews.Add(new ThreadView()
-                {
-                    Author = $"{msg.Author.FirstName} {msg.Author.LastName}",
-                    Title = msg.Title,
-                    AuthorId = msg.Author.Id.ToString(),
-                    Content = msg.Content,
-                    Id = msg.Id,
-                    Parent = msg.Parent?.Id.ToString(),
-                    Created = msg.Created,
-                    Pinned = msg.Pinned,
-                    Guest = _unitOfWork.Message.IsGuest(msg.Id.ToString()),
-                    Replies = _unitOfWork.Message.GetReplyCount(msg.Id.ToString())
-                });
+
+                threadViews.Add(msg.GetAsReply());
+
             }
 
             return threadViews;

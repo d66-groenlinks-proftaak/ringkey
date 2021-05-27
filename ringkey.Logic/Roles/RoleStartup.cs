@@ -71,6 +71,14 @@ namespace ringkey.Logic.Roles
                     new Permission()
                     {
                         Perm = Permissions.Quiz
+                    }, 
+                    new Permission()
+                    {
+                        Perm = Permissions.AdminPanel
+                    }, 
+                    new Permission()
+                    {
+                        Perm = Permissions.RoleManager
                     }
                 }
             });
