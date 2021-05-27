@@ -18,7 +18,7 @@ namespace ringkey.Common.Models.Messages
         public bool locked { get; set; }
         public bool Announcement { get; set; }
         public int Views { get; set; }
-        public List<Message> Children { get; set; }
+        public List<Message> Children { get; set; } = new();
         public List<MessageTag> Tags { get; set; } 
         public List<Report> Reports { get; set; }
         public List<Attachment> Attachments { get; set; }
@@ -39,7 +39,8 @@ namespace ringkey.Common.Models.Messages
                     Pinned = Pinned,
                     Guest =  Author.Roles.Any(e => e.Name == "Guest"),
                     Replies = Children.Count(),
-                    Role = Author.Roles.First().Name
+                    Role = Author.Roles.First().Name,
+                    ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList()
                 };
         }
 
