@@ -46,7 +46,9 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestAnnouncement()
         {
-            await Clients.Caller.SendAnnouncements(_messageService.GetAnnouncements());
+            List<ThreadView> announcements = _messageService.GetAnnouncements();
+            
+            await Clients.Caller.SendAnnouncements(announcements);
         }
 
         public async Task ReportMessage(NewReport newReport) // ur reported dude
