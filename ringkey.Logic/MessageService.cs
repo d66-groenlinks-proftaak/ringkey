@@ -84,6 +84,12 @@ namespace ringkey.Logic
                 Tags = new List<MessageTag>()
             };
 
+            if (message.Announcement &&
+                account.Roles.Any(r => r.Permissions.Any(p => p.Perm == Permissions.Announcement)))
+            {
+                newMessage.Tags.Add(new MessageTag() { Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+            }
+
             string[] tags = JsonSerializer.Deserialize<string[]>(message.Categories[0]);
 
             if (tags != null) foreach (string name in tags)
