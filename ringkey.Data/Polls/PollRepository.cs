@@ -33,7 +33,7 @@ namespace ringkey.Data.Polls
 
         private Poll? GetLatestPoll()
         {
-            List<Poll> polls = _dbContext.Poll.Include(e => e.Options).Include(e => e.Votes).ToList();
+            List<Poll> polls = _dbContext.Poll.Include(e => e.Options).Include(e => e.Votes).ThenInclude(v => v.Account).ToList();
             if (polls == null || polls.Count == 0)
                 return null;
 
