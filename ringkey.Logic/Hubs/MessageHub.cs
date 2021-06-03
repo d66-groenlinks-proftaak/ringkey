@@ -295,7 +295,16 @@ namespace ringkey.Logic.Hubs
 
         public async Task SetAnnouncement(string postId)
         {
-            _unitOfWork.Message.SetAnnouncement(postId);
+            Message message = _unitOfWork.Message.GetById(postId);
+            foreach(MessageTag messageTag in message.Tags)
+            {
+                if(messageTag.Type != MessageTagType.Announcement)
+                {
+                    _unitOfWork.Message.RemoveAnnouncement(postId);
+                }
+            }
+            
+            _unitOfWork.Message.AddAnnouncement(postId);
         }
     }
 }
