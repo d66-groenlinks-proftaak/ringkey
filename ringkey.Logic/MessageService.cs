@@ -97,11 +97,15 @@ namespace ringkey.Logic
                 });
             }
 
-            newMessage.Tags.Add(new MessageTag()
+            if (newMessage.Announcement)
             {
-                Name = "Announcement",
-                Type = MessageTagType.Announcement
-            });
+                newMessage.Tags.Add(new MessageTag()
+                {
+                    Name = "Announcement",
+                    Type = MessageTagType.Announcement
+                });
+            }
+          
             _unitOfWork.Message.Add(newMessage);
 
             _unitOfWork.SaveChanges();
