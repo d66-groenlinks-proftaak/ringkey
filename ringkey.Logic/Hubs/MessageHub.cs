@@ -263,6 +263,29 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.SendProfile(profile);
         }
 
+        public class UpdateRole
+        {
+            public string Role { get; set; }
+            public bool State { get; set; }
+            public string Email { get; set; }
+        }
+        
+        public async Task SetRole(UpdateRole r)
+        {
+            Account a = _unitOfWork.Account.GetByEmail(r.Email);
+            
+            if (!r.State)
+            {
+                a.Roles.Remove(a.Roles.Find(ro => ro.Name == r.Role));
+            }
+            else if(a.Roles.Find(ro => ro.Name == r.Email) == null)
+            {
+                a.Roles.Add(_unitOfWork.Role.GetByName(r.Role));
+            }
+            
+            _unitOfWork.SaveChanges();
+        }
+
         public async Task UpdateProfile(UpdateProfile updates)
         {
             Account _account = new();

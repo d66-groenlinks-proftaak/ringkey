@@ -16,6 +16,7 @@ namespace ringkey.Common.Models
         public string Biography { get; set; }
         public string Avatar { get; set; }
         public List<Role> Roles { get; set; }
+        public List<Role> AllRoles { get; set; }
         public List<Message> Messages { get; set; }
     }
 }
