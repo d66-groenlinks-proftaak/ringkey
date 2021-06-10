@@ -216,7 +216,8 @@ namespace ringkey.Logic.Hubs
                     Title = message.Title,
                     Created = message.Created,
                     Attachments = message.Attachments,
-                    Locked = message.locked
+                    Locked = message.locked,
+                    Webinar = message.Webinar
 
                 },
                 Children = _messageService.GetMessageReplies(id)

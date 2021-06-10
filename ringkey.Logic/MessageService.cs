@@ -81,7 +81,8 @@ namespace ringkey.Logic
                 Processed = false,
                 Pinned = false,
                 Attachments = attachments,
-                Tags = new List<MessageTag>()
+                Tags = new List<MessageTag>(),
+                Webinar = false
             };
 
             string[] tags = JsonSerializer.Deserialize<string[]>(message.Categories[0]);
@@ -97,12 +98,22 @@ namespace ringkey.Logic
                 });
             }
 
-            if (newMessage.Announcement)
+            if (message.Announcement)
             {
                 newMessage.Tags.Add(new MessageTag()
                 {
                     Name = "Announcement",
                     Type = MessageTagType.Announcement
+                });
+            }
+
+            if (message.Webinar)
+            {
+                newMessage.Webinar = true;
+                newMessage.Tags.Add(new MessageTag()
+                {
+                    Name ="Webinars",
+                    Type = MessageTagType.Webinar
                 });
             }
           

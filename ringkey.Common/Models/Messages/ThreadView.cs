@@ -21,5 +21,6 @@ namespace ringkey.Common.Models.Messages
         public string Role {get; set;}
         public List<ThreadView> ReplyContent { get; set; }
         public List<Attachment> Attachments { get; set; }
+        public bool Webinar { get; set; }       
     }
 }
