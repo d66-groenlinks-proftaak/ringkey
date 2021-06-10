@@ -19,7 +19,8 @@ namespace ringkey.Common.Models.Messages
         public bool Announcement { get; set; }
         public int Views { get; set; }
         public List<Message> Children { get; set; } = new();
-        public List<MessageTag> Tags { get; set; } 
+        public List<MessageTag> Tags { get; set; }
+        public List<MessageRating> Ratings { get; set; }
         public List<Report> Reports { get; set; }
         public List<Attachment> Attachments { get; set; }
 
@@ -41,7 +42,24 @@ namespace ringkey.Common.Models.Messages
                     Replies = Children.Count(),
                     Role = Author.Roles.First().Name,
                     ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList()
-                };
+            };
+        }
+
+        public int getRatingCount() {
+            if (Ratings == null)
+            {
+                return 0;
+            }
+            return (Ratings.Where(m => m.Type == MessageRatingType.liked).Count() - Ratings.Where(m => m.Type == MessageRatingType.disliked).Count());
+        }
+
+        public MessageRatingType getRating(Guid userId)
+        {
+            if (Ratings.Where(m => m.Id == userId).FirstOrDefault() == null)
+            {
+                return MessageRatingType.neutral;
+            }
+            return Ratings.Where(m=> m.Id == userId).FirstOrDefault().Type;
         }
 
         // Displayed in thread as replies

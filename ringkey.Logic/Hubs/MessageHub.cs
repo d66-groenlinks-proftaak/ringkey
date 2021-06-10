@@ -203,24 +203,49 @@ namespace ringkey.Logic.Hubs
         public async Task LoadMessageThread(string id)
         {
             Message message = _messageService.GetMessageDetails(id);
-
-            await Clients.Caller.SendThreadDetails(new Thread()
+            if (Context.Items.ContainsKey("account"))
             {
-                Parent = new ThreadView()
+                Account account = (Account)Context.Items["account"];
+                Account newAccount = _unitOfWork.Account.GetById(account.Id.ToString());
+                await Clients.Caller.SendThreadDetails(new Thread()
                 {
-                    Author = $"{message.Author.FirstName} {message.Author.LastName}",
-                    AuthorId = message.Author.Id.ToString(),
-                    Content = message.Content,
-                    Id = message.Id,
-                    Parent = message.Parent?.Id.ToString(),
-                    Title = message.Title,
-                    Created = message.Created,
-                    Attachments = message.Attachments,
-                    Locked = message.locked
-
-                },
-                Children = _messageService.GetMessageReplies(id)
-            });
+                    Parent = new ThreadView()
+                    {
+                        Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                        AuthorId = message.Author.Id.ToString(),
+                        Content = message.Content,
+                        Id = message.Id,
+                        Parent = message.Parent?.Id.ToString(),
+                        Title = message.Title,
+                        Created = message.Created,
+                        Attachments = message.Attachments,
+                        Locked = message.locked,
+                        Rating = (_unitOfWork.Message.GetMessageRating(message.Id.ToString(), MessageRatingType.liked).Count - _unitOfWork.Message.GetMessageRating(message.Id.ToString(), MessageRatingType.disliked).Count),
+                        UserRating = (int)_unitOfWork.Message.GetMessageRatingById(message.Id.ToString(), newAccount).Type
+            },
+                    Children = _messageService.GetMessageReplies(id)
+                });
+            }
+            else
+            {
+                await Clients.Caller.SendThreadDetails(new Thread()
+                {
+                    Parent = new ThreadView()
+                    {
+                        Author = $"{message.Author.FirstName} {message.Author.LastName}",
+                        AuthorId = message.Author.Id.ToString(),
+                        Content = message.Content,
+                        Id = message.Id,
+                        Parent = message.Parent?.Id.ToString(),
+                        Title = message.Title,
+                        Created = message.Created,
+                        Attachments = message.Attachments,
+                        Locked = message.locked,
+                        Rating = message.getRatingCount()
+                    },
+                    Children = _messageService.GetMessageReplies(id)
+                });
+            }
         }
 
 
@@ -304,6 +329,36 @@ namespace ringkey.Logic.Hubs
             }
             
             _unitOfWork.Message.AddAnnouncement(postId);
+        }
+
+        public async Task SetRating(string postId, int type)
+        {
+            Account _account = new();
+            IDictionary<object, object> test = Context.Items;
+
+
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account)Context.Items["account"];
+                _account = _unitOfWork.Account.GetById(account.Id.ToString());
+                
+
+                MessageRating rating = _unitOfWork.Message.GetMessageRatingById(postId, _account);
+                if (rating == null)
+                {
+                    _unitOfWork.Message.CreateNewRating(postId, (MessageRatingType)type, _account);
+                }
+                else if (rating.Type == (MessageRatingType)type)
+                {
+                    _unitOfWork.Message.removeRating(postId, _account);
+
+                }
+                else if (rating.Type != (MessageRatingType)type)
+                {
+                    _unitOfWork.Message.removeRating(postId, _account);
+                    _unitOfWork.Message.CreateNewRating(postId, (MessageRatingType)type, _account);
+                }
+            }
         }
     }
 }

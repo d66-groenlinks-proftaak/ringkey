@@ -219,6 +219,20 @@ namespace ringkey.Data.Messages
                 .Where(a => a.Id.ToString() == PostId).FirstOrDefault();
         }
 
+        public MessageRating GetMessageRatingById(string PostId, Account account)
+        {
+            if (_dbContext.MessageRating.Where(rating => rating.Message.Id.ToString() == PostId && rating.Account == account).FirstOrDefault() != null)
+            {
+                return _dbContext.MessageRating.Where(rating => rating.Message.Id.ToString() == PostId && rating.Account == account).FirstOrDefault();
+            }
+            return new MessageRating();
+        }
+
+        public List<MessageRating> GetMessageRating(string PostId, MessageRatingType ratingType)
+        {
+            return _dbContext.MessageRating.Where(rating => rating.Message.Id.ToString() == PostId && rating.Type == ratingType).ToList();
+        }
+
         public void LockMessage(string PostId)
         {
             if (_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId).FirstOrDefault() == null) {
@@ -272,6 +286,19 @@ namespace ringkey.Data.Messages
         public void RemoveAnnouncement(string PostId)
         {
             _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Announcement).FirstOrDefault());
+            _dbContext.SaveChanges();
+
+        }
+
+        public void CreateNewRating(string PostId, MessageRatingType type, Account account)
+        {
+            _dbContext.MessageRating.Add(new MessageRating() { Account = account, Id = Guid.NewGuid(), Message = _dbContext.Message.Where(m => m.Id.ToString() == PostId).FirstOrDefault(), Type = type });
+            _dbContext.SaveChanges();
+        }
+
+        public void removeRating(string PostId, Account account)
+        {
+            _dbContext.MessageRating.Remove(_dbContext.MessageRating.Where(rating => rating.Message.Id.ToString() == PostId && rating.Account == account).FirstOrDefault());
             _dbContext.SaveChanges();
 
         }
