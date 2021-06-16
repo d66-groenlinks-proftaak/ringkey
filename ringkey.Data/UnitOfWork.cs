@@ -21,6 +21,7 @@ namespace ringkey.Data
         public IRoleRepository Role { get; private set; }
         public IPermissionRepository Permission { get; private set; }
         public IPollRepository Poll { get; private set; }
+        public ICategoryRepository Category { get; private set; }
         private RingkeyDbContext _context;
 
         public UnitOfWork(RingkeyDbContext context)
@@ -34,6 +35,7 @@ namespace ringkey.Data
             Role = new RoleRepository(_context);
             Permission = new PermissionRepository(_context);
             Poll = new PollRepository(_context);
+            Category = new CategoryRepository(_context);
         }
 
         public void SaveChanges()

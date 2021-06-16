@@ -260,5 +260,28 @@ namespace ringkey.Logic.Hubs
         {
                 _unitOfWork.Message.LockMessage(postId);
         }
+
+        public async Task GetCategories()
+        {
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
+
+        public async Task DeleteCategory(string name)
+        {
+            _unitOfWork.Category.Remove(name);
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
+
+        public async Task AddCategory(string name, string icon)
+        {
+            _unitOfWork.Category.AddCategory(name, icon);
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
+
+        public async Task HideCategory(string name, bool hidden)
+        {
+            _unitOfWork.Category.HideCategory(name, hidden);
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
     }
 }

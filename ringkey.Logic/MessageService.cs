@@ -215,10 +215,6 @@ namespace ringkey.Logic
             bool all = tag.ToLower() == "alle berichten";
 
             List<Message> messages = new List<Message>();
-<<<<<<< Updated upstream
-            if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
-            else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
-=======
             
             switch (sort)
             {
@@ -235,8 +231,6 @@ namespace ringkey.Logic
                     else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
                     break;
             }
-
->>>>>>> Stashed changes
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)

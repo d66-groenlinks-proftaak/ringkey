@@ -17,12 +17,8 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Tags.Where(tag=> tag.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
-<<<<<<< Updated upstream
                 .Include(msg => msg.Parent)
-                .Take(10)
-=======
                 .Take(amount)
->>>>>>> Stashed changes
                 .Include(msg => msg.Author)
                 .ToList();
         }
@@ -58,10 +54,6 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
-<<<<<<< Updated upstream
-                .Include(msg => msg.Parent)
-                .Take(10)
-=======
                 .Take(amount)
                 .Include(msg => msg.Author)
                 .ThenInclude(author => author.Roles)
@@ -77,7 +69,6 @@ namespace ringkey.Data.Messages
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenBy(msg => msg.Created)
                 .Take(amount)
->>>>>>> Stashed changes
                 .Include(msg => msg.Author)
                 .ToList();
         }
@@ -90,10 +81,6 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Created > lastSeven && msg.Processed && msg.Tags.Where(o => o.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
-<<<<<<< Updated upstream
-                .Include(msg => msg.Parent)
-                .Take(10)
-=======
                 .Take(amount)
                 .Include(msg => msg.Author)
                 .ThenInclude(author => author.Roles)
@@ -111,7 +98,6 @@ namespace ringkey.Data.Messages
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Views)
                 .Take(amount)
->>>>>>> Stashed changes
                 .Include(msg => msg.Author)
                 .ToList();
         }
