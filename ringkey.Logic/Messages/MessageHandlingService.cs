@@ -70,32 +70,14 @@ namespace ringkey.Logic.Messages
                         message.Processed = true;
 
                         if (message.Type == MessageType.Thread)
-                            await _hub.Clients.Group("/").SendMessage(new ThreadView()
-                            {
-                                Author = $"{message.Author.FirstName} {message.Author.LastName}",
-                                Content = message.Content,
-                                AuthorId = message.Author.Id.ToString(),
-                                Id = message.Id,
-                                Parent =  message.Parent?.Id.ToString(),
-                                Title = message.Title,
-                                Created = message.Created,
-                                Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
-                            });
+                            await _hub.Clients.Group("/").SendMessage(message.GetAsReply());
+
                         else if (message.Type == MessageType.Reply)
                         {
                             string top = GetTopParent(message.Id.ToString()).Id.ToString();
                             
                             await _hub.Clients.Group($"/thread/{GetTopParent(message.Id.ToString()).Id.ToString()}")
-                                .SendChild(new ThreadView()
-                                {
-                                    Author = $"{message.Author.FirstName} {message.Author.LastName}",
-                                    AuthorId = message.Author.Id.ToString(),
-                                    Content = message.Content,
-                                    Id = message.Id,
-                                    Parent = message.Parent?.Id.ToString(),
-                                    Created = message.Created,
-                                    Guest = _unitOfWork.Message.IsGuest(message.Id.ToString()),
-                                });
+                                .SendChild(message.GetAsReply());
                             ;
                         }
                     }

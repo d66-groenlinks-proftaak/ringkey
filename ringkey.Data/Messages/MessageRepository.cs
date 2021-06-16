@@ -17,9 +17,11 @@ namespace ringkey.Data.Messages
                 .Where(msg => msg.Type == MessageType.Thread && msg.Processed && msg.Tags.Where(tag=> tag.Type == MessageTagType.Announcement).FirstOrDefault() == null)
                 .OrderByDescending(msg => msg.Pinned)
                 .ThenByDescending(msg => msg.Created)
-                .Include(msg => msg.Parent)
                 .Take(amount)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
         public List<Message> GetLatestWithTag(string tag, int amount)
@@ -70,6 +72,9 @@ namespace ringkey.Data.Messages
                 .ThenBy(msg => msg.Created)
                 .Take(amount)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
         
@@ -99,8 +104,13 @@ namespace ringkey.Data.Messages
                 .ThenByDescending(msg => msg.Views)
                 .Take(amount)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
+                .Include(msg => msg.Parent)
+                .Include(msg => msg.Children)
                 .ToList();
         }
+
+
 
         public bool IsGuest(string id)
         {
@@ -135,26 +145,14 @@ namespace ringkey.Data.Messages
             return messages;
         }
 
+
         public List<ThreadView> GetReplyChildren(string id)
         {
             return _dbContext.Message
-                .Where(msg =>
-                    msg.Type == MessageType.Reply &&
-                    msg.Parent.Id.ToString() == id)
+                .Where(msg => msg.Type == MessageType.Reply && msg.Parent == _dbContext.Message.FirstOrDefault(_msg => _msg.Id.ToString() == id) && msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Take(3)
-                .Include(msg => msg.Author).Select(c => new ThreadView()
-                {
-                    Author = $"{c.Author.FirstName} {c.Author.LastName}",
-                    AuthorId = c.Author.Id.ToString(),
-                    Content = c.Content,
-                    Id = c.Id,
-                    Parent = c.Parent.Id.ToString(),
-                    Created = c.Created,
-                    Pinned = c.Pinned,
-                    Guest = false,
-                    ReplyContent = new List<ThreadView>()
-                }).ToList();
+                .Include(msg => msg.Author).Select(c => c.GetThreadView()).ToList();
         }
 
         public List<Message> GetNextReplies(string id)
@@ -177,9 +175,11 @@ namespace ringkey.Data.Messages
         {
             Message msg = _dbContext.Message
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
                 .Include(msg => msg.Attachments)
+                .Include(msg => msg.Tags)
                 .FirstOrDefault(msg => msg.Id.ToString() == id && (!requiresProcessed || msg.Processed));
 
             if (msg != null)
@@ -196,6 +196,7 @@ namespace ringkey.Data.Messages
                 .Where(msg => !msg.Processed)
                 .OrderByDescending(msg => msg.Created)
                 .Include(msg => msg.Author)
+                .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Parent)
                 .ToList();
@@ -259,6 +260,19 @@ namespace ringkey.Data.Messages
                 _dbContext.SaveChanges();
 
             }
+
+        }
+
+        public void AddAnnouncement(string PostId)
+        {
+            _dbContext.Tag.Add(new MessageTag() { Message = _dbContext.Message.Where(msg => msg.Id.ToString() == PostId).FirstOrDefault(), Id = Guid.NewGuid(), Type = MessageTagType.Announcement, Name = "Announcement" });
+            _dbContext.SaveChanges();
+        }
+
+        public void RemoveAnnouncement(string PostId)
+        {
+            _dbContext.Tag.Remove(_dbContext.Tag.Where(tag => tag.Message.Id.ToString() == PostId && tag.Type == MessageTagType.Announcement).FirstOrDefault());
+            _dbContext.SaveChanges();
 
         }
 

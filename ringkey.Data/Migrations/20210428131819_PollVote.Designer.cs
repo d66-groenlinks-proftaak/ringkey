@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ringkey.Data;
 
 namespace ringkey.Data.Migrations
 {
     [DbContext(typeof(RingkeyDbContext))]
-    partial class RingkeyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210428131819_PollVote")]
+    partial class PollVote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +40,6 @@ namespace ringkey.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Biography")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Email")
                         .HasColumnType("longtext");
 
@@ -51,9 +50,6 @@ namespace ringkey.Data.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ProfilePicture")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -112,34 +108,11 @@ namespace ringkey.Data.Migrations
                     b.ToTable("Attachment");
                 });
 
-            modelBuilder.Entity("ringkey.Common.Models.Messages.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("Hidden")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Category");
-                });
-
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<bool>("Announcement")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid?>("AuthorId")
                         .HasColumnType("char(36)");

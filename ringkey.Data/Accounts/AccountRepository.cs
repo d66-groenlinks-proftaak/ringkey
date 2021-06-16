@@ -44,6 +44,25 @@ namespace ringkey.Data.Accounts
                     Title = message.Title
                 });
             }
+
+            List<Role> UserRoles = new List<Role>();
+            List<Role> AllRoles = new List<Role>();
+            
+            foreach (Role r in account.Roles)
+            {
+                UserRoles.Add(new Role()
+                {
+                    Name = r.Name
+                });
+            }
+            
+            foreach (Role r in _dbContext.Role.ToList())
+            {
+                AllRoles.Add(new Role()
+                {
+                    Name = r.Name
+                });
+            }
             
 
             return new Profile()
@@ -52,7 +71,11 @@ namespace ringkey.Data.Accounts
                 FirstName = account.FirstName,
                 LastName = account.LastName,
                 Email = account.Email,
-                Messages = _messages
+                Biography = account.Biography,
+                Avatar = account.ProfilePicture,
+                Messages = _messages,
+                Roles = UserRoles,
+                AllRoles = AllRoles
             };
         }
         

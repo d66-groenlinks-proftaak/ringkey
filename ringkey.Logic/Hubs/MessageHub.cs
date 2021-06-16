@@ -46,7 +46,9 @@ namespace ringkey.Logic.Hubs
 
         public async Task RequestAnnouncement()
         {
-            await Clients.Caller.SendAnnouncements(_messageService.GetAnnouncements());
+            List<ThreadView> announcements = _messageService.GetAnnouncements();
+            
+            await Clients.Caller.SendAnnouncements(announcements);
         }
 
         public async Task ReportMessage(NewReport newReport) // ur reported dude
@@ -145,7 +147,12 @@ namespace ringkey.Logic.Hubs
                 Account account = (Account) Context.Items["account"];
                 _account = _unitOfWork.Account.GetById(account.Id.ToString());
             }
-            
+            else
+            {
+                await Clients.Caller.ReceivePollResults(_unitOfWork.Poll.GetPollResults());
+                return;
+            }
+
             if (!_unitOfWork.Poll.CheckIfVoted(_account))
                 await Clients.Caller.ReceiveLatestPoll(_unitOfWork.Poll.GetPollToSend());
             else
@@ -216,7 +223,14 @@ namespace ringkey.Logic.Hubs
             });
         }
 
+
+        public async Task EditMessage(NewEditMessage newEditMessage)
+        {
+            _messageService.EditMessage(newEditMessage);
+        }
+
         public async Task UpdateBannedMessages(NewBannedMessage newBannedMessage)
+
         {
             _messageService.UpdateBannedMessage(newBannedMessage);
             if (newBannedMessage.Banned)
@@ -249,11 +263,51 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.SendProfile(profile);
         }
 
+        public class UpdateRole
+        {
+            public string Role { get; set; }
+            public bool State { get; set; }
+            public string Email { get; set; }
+        }
+        
+        public async Task SetRole(UpdateRole r)
+        {
+            Account a = _unitOfWork.Account.GetByEmail(r.Email);
+            
+            if (!r.State)
+            {
+                a.Roles.Remove(a.Roles.Find(ro => ro.Name == r.Role));
+            }
+            else if(a.Roles.Find(ro => ro.Name == r.Email) == null)
+            {
+                a.Roles.Add(_unitOfWork.Role.GetByName(r.Role));
+            }
+            
+            _unitOfWork.SaveChanges();
+        }
+
+        public async Task UpdateProfile(UpdateProfile updates)
+        {
+            Account _account = new();
+            if (Context.Items.ContainsKey("account"))
+            {
+                Account account = (Account) Context.Items["account"];
+                _account = _unitOfWork.Account.GetById(account.Id.ToString());
+            }
+            else
+            {
+                return;
+            }
+
+            _account.Biography = updates.Biography;
+            _account.ProfilePicture = updates.Avatar;
+            
+            _unitOfWork.SaveChanges();
+        }
+
         public async Task TogglePostPin(string postId)
         {
-
-                _unitOfWork.Message.PinMessage(postId);
-
+            _unitOfWork.Message.PinMessage(postId);
         }
 
         public async Task LockPost(string postId)
@@ -282,6 +336,19 @@ namespace ringkey.Logic.Hubs
         {
             _unitOfWork.Category.HideCategory(name, hidden);
             await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+
+        public async Task SetAnnouncement(string postId)
+        {
+            Message message = _unitOfWork.Message.GetById(postId);
+            foreach(MessageTag messageTag in message.Tags)
+            {
+                if(messageTag.Type != MessageTagType.Announcement)
+                {
+                    _unitOfWork.Message.RemoveAnnouncement(postId);
+                }
+            }
+            
+            _unitOfWork.Message.AddAnnouncement(postId);
         }
     }
 }

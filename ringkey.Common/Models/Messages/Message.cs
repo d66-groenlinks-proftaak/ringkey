@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+using System.Linq;
 namespace ringkey.Common.Models.Messages
 {
     public partial class Message
@@ -18,9 +18,47 @@ namespace ringkey.Common.Models.Messages
         public bool locked { get; set; }
         public bool Announcement { get; set; }
         public int Views { get; set; }
-        public List<Message> Children { get; set; }
+        public List<Message> Children { get; set; } = new();
         public List<MessageTag> Tags { get; set; } 
         public List<Report> Reports { get; set; }
         public List<Attachment> Attachments { get; set; }
+
+
+        // Displayed on home page
+        public ThreadView GetThreadView() 
+        {
+            return new ThreadView()
+                {
+                    Author = $"{Author.FirstName} {Author.LastName}",
+                    AuthorId = Author.Id.ToString(),
+                    Content = Content,
+                    Id = Id,
+                    Parent = Parent?.Id.ToString(),
+                    Title = Title,
+                    Created = Created,
+                    Pinned = Pinned,
+                    Guest =  Author.Roles.Any(e => e.Name == "Guest"),
+                    Replies = Children.Count(),
+                    Role = Author.Roles.First().Name,
+                    ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList()
+                };
+        }
+
+        // Displayed in thread as replies
+        public ThreadView GetAsReply()
+        {
+            return new ThreadView()
+                {
+                    Author = $"{Author.FirstName} {Author.LastName}",
+                    AuthorId = Author.Id.ToString(),
+                    Content = Content,
+                    Id = Id,
+                    Parent = Parent?.Id.ToString(),
+                    Title = Title,
+                    Created = Created,
+                    Pinned = Pinned,
+                    Guest =  Author.Roles.Any(e => e.Name == "Guest")
+                };
+        }
     }
 }

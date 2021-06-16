@@ -8,10 +8,12 @@ namespace ringkey.Common.Models.Accounts
 {
     public enum Permissions
     {
-        Ban,
-        Categorize,
-        Quiz,
-        Webinar,
-        Announcement
+        Ban = 0,
+        Categorize = 1,
+        Quiz = 2,
+        Webinar = 3,
+        Announcement = 4,
+        RoleManager = 5,
+        AdminPanel = 6
     }
 }
