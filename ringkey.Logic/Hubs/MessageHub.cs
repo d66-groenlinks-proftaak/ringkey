@@ -337,6 +337,7 @@ namespace ringkey.Logic.Hubs
         {
             _unitOfWork.Category.HideCategory(name, hidden);
             await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
 
         public async Task SetAnnouncement(string postId)
         {
