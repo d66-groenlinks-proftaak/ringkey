@@ -331,20 +331,14 @@ namespace ringkey.Logic.Hubs
             _unitOfWork.Message.AddAnnouncement(postId);
         }
 
-        public async Task SetRating(string postId, int type)
+        public async Task SetRating(string postId, string userEmail, int type)
         {
-            Account _account = new();
-            IDictionary<object, object> test = Context.Items;
-
-
-            if (Context.Items.ContainsKey("account"))
+            Account _account = _unitOfWork.Account.GetByEmail(userEmail);
+            if (_account != null)
             {
-                Account account = (Account)Context.Items["account"];
-                _account = _unitOfWork.Account.GetById(account.Id.ToString());
-                
 
                 MessageRating rating = _unitOfWork.Message.GetMessageRatingById(postId, _account);
-                if (rating == null)
+                if (rating.Account == null)
                 {
                     _unitOfWork.Message.CreateNewRating(postId, (MessageRatingType)type, _account);
                 }

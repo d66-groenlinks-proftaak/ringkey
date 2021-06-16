@@ -29,19 +29,20 @@ namespace ringkey.Common.Models.Messages
         public ThreadView GetThreadView() 
         {
             return new ThreadView()
-                {
-                    Author = $"{Author.FirstName} {Author.LastName}",
-                    AuthorId = Author.Id.ToString(),
-                    Content = Content,
-                    Id = Id,
-                    Parent = Parent?.Id.ToString(),
-                    Title = Title,
-                    Created = Created,
-                    Pinned = Pinned,
-                    Guest =  Author.Roles.Any(e => e.Name == "Guest"),
-                    Replies = Children.Count(),
-                    Role = Author.Roles.First().Name,
-                    ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList()
+            {
+                Author = $"{Author.FirstName} {Author.LastName}",
+                AuthorId = Author.Id.ToString(),
+                Content = Content,
+                Id = Id,
+                Parent = Parent?.Id.ToString(),
+                Title = Title,
+                Created = Created,
+                Pinned = Pinned,
+                Guest = Author.Roles.Any(e => e.Name == "Guest"),
+                Replies = Children.Count(),
+                Role = Author.Roles.First().Name,
+                ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList(),
+                Rating = getRatingCount()
             };
         }
 
