@@ -6,6 +6,7 @@
         Flair = 1,
         Lock = 2,
         Pin = 3,
-        Announcement = 4
+        Announcement = 4,
+        Webinar = 5
     }
 }

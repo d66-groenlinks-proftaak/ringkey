@@ -22,7 +22,7 @@ namespace ringkey.Data.Messages
                 .ThenInclude(author => author.Roles)
                 .Include(msg => msg.Parent)
                 .Include(msg => msg.Children)
-                .ToList();
+                .ToList();  
         }
         public List<Message> GetLatestWithTag(string tag, int amount)
         {

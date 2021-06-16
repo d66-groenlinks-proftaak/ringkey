@@ -15,6 +15,7 @@ namespace ringkey.Common.Models.Messages
         public long Created { get; set; }
         public bool Processed { get; set; }
         public bool Pinned { get; set; }
+        public bool Webinar { get; set; }
         public bool locked { get; set; }
         public bool Announcement { get; set; }
         public int Views { get; set; }
@@ -40,7 +41,8 @@ namespace ringkey.Common.Models.Messages
                     Guest =  Author.Roles.Any(e => e.Name == "Guest"),
                     Replies = Children.Count(),
                     Role = Author.Roles.First().Name,
-                    ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList()
+                    ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList(),
+                    Webinar = Webinar
                 };
         }
 
