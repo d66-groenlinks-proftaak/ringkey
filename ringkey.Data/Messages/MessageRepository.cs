@@ -212,6 +212,7 @@ namespace ringkey.Data.Messages
                 .Take(5)
                 .Include(msg => msg.Parent)
                 .Include(msg => msg.Author)
+                .ThenInclude(a => a.Roles)
                 .ToList();
         }
 
