@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
@@ -31,22 +32,20 @@ namespace ringkey.Data.Polls
             return poll;
         }
 
-        private Poll? GetLatestPoll()
+        private Poll GetLatestPoll()
         {
             List<Poll> polls = _dbContext.Poll.Include(e => e.Options).Include(e => e.Votes).ThenInclude(v => v.Account).ToList();
-            if (polls == null || polls.Count == 0)
-                return null;
+            if (polls.Count == 0)
+                return new Poll(){Name = "NOLATESTPOLL"};
 
             Poll latestPoll = polls.Where(i => i.ExpirationDate > DateTime.Now).OrderByDescending(i => i.Id).First();
-            if (latestPoll == null)
-                return null;
             return latestPoll;
         }
 
         public bool CheckIfVoted(Account account)
         {
             Poll poll = GetLatestPoll();
-            if (poll == null)
+            if (poll.Name == "NOLATESTPOLL")
                 return false;
             if(poll.Votes.Any(e => e.Account.Id == account.Id) || account.Roles.Any(role => role.Name == "Guest") || account.Roles == null)
                 return true;
@@ -56,8 +55,8 @@ namespace ringkey.Data.Polls
         public PollResults GetPollResults()
         {
             Poll poll = GetLatestPoll();
-            if (poll == null)
-                return new PollResults();
+            if (poll.Name == "NOLATESTPOLL")
+                return new PollResults(){Name = "NOLATESTPOLL"};
 
             PollResults pollResults = new()
             {
@@ -74,7 +73,7 @@ namespace ringkey.Data.Polls
         public PollToSend GetPollToSend()
         {
             Poll poll = GetLatestPoll();
-            if (poll == null)
+            if (poll.Name == "NOLATESTPOLL")
                 return new PollToSend();
 
             PollToSend pollToSend = new()
@@ -91,14 +90,14 @@ namespace ringkey.Data.Polls
         public void VotePoll(Account account, NewVoteOptions newVote)
         {
             Poll poll = GetLatestPoll();
-            if (poll == null)
+            if (poll.Name == "NOLATESTPOLL")
                 return;
 
             List<PollOption> options = poll.Options;
             foreach (string voteOption in newVote.VoteOptions)
             {
-                PollOption option = options.Find(pollOption => pollOption.Id.ToString() == voteOption);
-                poll.Votes.Add(new PollVote()
+                PollOption? option = options.Find(pollOption => pollOption.Id.ToString() == voteOption);
+                poll.Votes.Add(new PollVote
                 {
                     Account = account,
                     PollOption = option,

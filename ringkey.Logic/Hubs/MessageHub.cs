@@ -230,6 +230,7 @@ namespace ringkey.Logic.Hubs
             {
                 await Clients.Caller.SendThreadDetails(new Thread()
                 {
+
                     Parent = new ThreadView()
                     {
                         Author = $"{message.Author.FirstName} {message.Author.LastName}",
@@ -241,7 +242,9 @@ namespace ringkey.Logic.Hubs
                         Created = message.Created,
                         Attachments = message.Attachments,
                         Locked = message.locked,
-                        Rating = message.getRatingCount()
+                        Rating = message.getRatingCount(),
+                        Webinar = message.Webinar
+
                     },
                     Children = _messageService.GetMessageReplies(id)
                 });
@@ -288,6 +291,29 @@ namespace ringkey.Logic.Hubs
             await Clients.Caller.SendProfile(profile);
         }
 
+        public class UpdateRole
+        {
+            public string Role { get; set; }
+            public bool State { get; set; }
+            public string Email { get; set; }
+        }
+        
+        public async Task SetRole(UpdateRole r)
+        {
+            Account a = _unitOfWork.Account.GetByEmail(r.Email);
+            
+            if (!r.State)
+            {
+                a.Roles.Remove(a.Roles.Find(ro => ro.Name == r.Role));
+            }
+            else if(a.Roles.Find(ro => ro.Name == r.Email) == null)
+            {
+                a.Roles.Add(_unitOfWork.Role.GetByName(r.Role));
+            }
+            
+            _unitOfWork.SaveChanges();
+        }
+
         public async Task UpdateProfile(UpdateProfile updates)
         {
             Account _account = new();
@@ -315,6 +341,29 @@ namespace ringkey.Logic.Hubs
         public async Task LockPost(string postId)
         {
                 _unitOfWork.Message.LockMessage(postId);
+        }
+
+        public async Task GetCategories()
+        {
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
+
+        public async Task DeleteCategory(string name)
+        {
+            _unitOfWork.Category.Remove(name);
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
+
+        public async Task AddCategory(string name, string icon)
+        {
+            _unitOfWork.Category.AddCategory(name, icon);
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
+        }
+
+        public async Task HideCategory(string name, bool hidden)
+        {
+            _unitOfWork.Category.HideCategory(name, hidden);
+            await Clients.Caller.SendCategories(_unitOfWork.Category.GetCategories());
         }
 
         public async Task SetAnnouncement(string postId)

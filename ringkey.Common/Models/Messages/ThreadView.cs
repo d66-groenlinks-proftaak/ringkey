@@ -23,5 +23,6 @@ namespace ringkey.Common.Models.Messages
         public int UserRating { get; set; }
         public List<ThreadView> ReplyContent { get; set; }
         public List<Attachment> Attachments { get; set; }
+        public bool Webinar { get; set; }       
     }
 }

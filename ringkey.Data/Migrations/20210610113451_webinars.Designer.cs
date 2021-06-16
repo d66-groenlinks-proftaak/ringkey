@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ringkey.Data;
 
 namespace ringkey.Data.Migrations
 {
     [DbContext(typeof(RingkeyDbContext))]
-    partial class RingkeyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210610113451_webinars")]
+    partial class webinars
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,26 +114,6 @@ namespace ringkey.Data.Migrations
                     b.ToTable("Attachment");
                 });
 
-            modelBuilder.Entity("ringkey.Common.Models.Messages.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("Hidden")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Category");
-                });
-
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.Property<Guid>("Id")
@@ -181,30 +163,6 @@ namespace ringkey.Data.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Message");
-                });
-
-            modelBuilder.Entity("ringkey.Common.Models.Messages.MessageRating", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("MessageId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("MessageId");
-
-                    b.ToTable("MessageRating");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Messages.MessageTag", b =>
@@ -380,21 +338,6 @@ namespace ringkey.Data.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("ringkey.Common.Models.Messages.MessageRating", b =>
-                {
-                    b.HasOne("ringkey.Common.Models.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId");
-
-                    b.HasOne("ringkey.Common.Models.Messages.Message", "Message")
-                        .WithMany()
-                        .HasForeignKey("MessageId");
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Message");
                 });
 
             modelBuilder.Entity("ringkey.Common.Models.Messages.MessageTag", b =>

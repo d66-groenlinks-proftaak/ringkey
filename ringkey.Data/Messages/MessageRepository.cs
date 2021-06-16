@@ -24,6 +24,7 @@ namespace ringkey.Data.Messages
                 .Include(msg => msg.Children)
                 .Include(msg => msg.Ratings)
                 .ToList();
+
         }
         public List<Message> GetLatestWithTag(string tag, int amount)
         {

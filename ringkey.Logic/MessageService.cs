@@ -81,7 +81,8 @@ namespace ringkey.Logic
                 Processed = false,
                 Pinned = false,
                 Attachments = attachments,
-                Tags = new List<MessageTag>()
+                Tags = new List<MessageTag>(),
+                Webinar = false
             };
 
             string[] tags = JsonSerializer.Deserialize<string[]>(message.Categories[0]);
@@ -97,6 +98,25 @@ namespace ringkey.Logic
                 });
             }
 
+            if (message.Announcement)
+            {
+                newMessage.Tags.Add(new MessageTag()
+                {
+                    Name = "Announcement",
+                    Type = MessageTagType.Announcement
+                });
+            }
+
+            if (message.Webinar)
+            {
+                newMessage.Webinar = true;
+                newMessage.Tags.Add(new MessageTag()
+                {
+                    Name ="Webinars",
+                    Type = MessageTagType.Webinar
+                });
+            }
+          
             _unitOfWork.Message.Add(newMessage);
 
             _unitOfWork.SaveChanges();
@@ -217,7 +237,7 @@ namespace ringkey.Logic
             bool all = tag.ToLower() == "alle berichten";
 
             List<Message> messages = new List<Message>();
-
+          
             if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
             else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
 
@@ -236,8 +256,8 @@ namespace ringkey.Logic
                     else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
                     break;
             }
-
-
+          
+          
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)

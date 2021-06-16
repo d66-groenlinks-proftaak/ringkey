@@ -12,5 +12,7 @@ namespace ringkey.Common.Models.Messages
         public string Author { get; set; }
         public string Token { get; set; }
         public List<string> Categories { get; set; }
+        public bool Announcement { get; set; }
+        public bool Webinar { get; set; }
     }
 }

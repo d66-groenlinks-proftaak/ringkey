@@ -15,6 +15,7 @@ namespace ringkey.Common.Models.Messages
         public long Created { get; set; }
         public bool Processed { get; set; }
         public bool Pinned { get; set; }
+        public bool Webinar { get; set; }
         public bool locked { get; set; }
         public bool Announcement { get; set; }
         public int Views { get; set; }
@@ -42,7 +43,8 @@ namespace ringkey.Common.Models.Messages
                 Replies = Children.Count(),
                 Role = Author.Roles.First().Name,
                 ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList(),
-                Rating = getRatingCount()
+                Rating = getRatingCount(),
+                Webinar = Webinar
             };
         }
 
@@ -61,6 +63,7 @@ namespace ringkey.Common.Models.Messages
                 return MessageRatingType.neutral;
             }
             return Ratings.Where(m=> m.Id == userId).FirstOrDefault().Type;
+
         }
 
         // Displayed in thread as replies
