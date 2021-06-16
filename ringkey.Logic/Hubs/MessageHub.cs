@@ -222,7 +222,8 @@ namespace ringkey.Logic.Hubs
                         Attachments = message.Attachments,
                         Locked = message.locked,
                         Rating = (_unitOfWork.Message.GetMessageRating(message.Id.ToString(), MessageRatingType.liked).Count - _unitOfWork.Message.GetMessageRating(message.Id.ToString(), MessageRatingType.disliked).Count),
-                        UserRating = (int)_unitOfWork.Message.GetMessageRatingById(message.Id.ToString(), newAccount).Type
+                        UserRating = (int)_unitOfWork.Message.GetMessageRatingById(message.Id.ToString(), newAccount).Type,
+                        Webinar = message.Webinar
             },
                     Children = _messageService.GetMessageReplies(id)
                 });
