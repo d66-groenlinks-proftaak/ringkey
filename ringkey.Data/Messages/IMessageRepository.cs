@@ -27,5 +27,9 @@ namespace ringkey.Data.Messages
         void PinMessage(string PostId);
         void AddAnnouncement(string PostId);
         void RemoveAnnouncement(string PostId);
+        void CreateNewRating(string PostId, MessageRatingType type, Account account);
+        void removeRating(string PostId, Account account);
+        MessageRating GetMessageRatingById(string PostId, Account account);
+        List<MessageRating> GetMessageRating(string PostId, MessageRatingType ratingType);
     }
 }

@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ringkey.Data;
 
 namespace ringkey.Data.Migrations
 {
     [DbContext(typeof(RingkeyDbContext))]
-    partial class RingkeyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210609073119_messagerating")]
+    partial class messagerating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,26 +114,6 @@ namespace ringkey.Data.Migrations
                     b.ToTable("Attachment");
                 });
 
-            modelBuilder.Entity("ringkey.Common.Models.Messages.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("Hidden")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Category");
-                });
-
             modelBuilder.Entity("ringkey.Common.Models.Messages.Message", b =>
                 {
                     b.Property<Guid>("Id")
@@ -167,9 +149,6 @@ namespace ringkey.Data.Migrations
 
                     b.Property<int>("Views")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Webinar")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("locked")
                         .HasColumnType("tinyint(1)");

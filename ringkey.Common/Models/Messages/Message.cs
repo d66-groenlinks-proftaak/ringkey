@@ -20,7 +20,8 @@ namespace ringkey.Common.Models.Messages
         public bool Announcement { get; set; }
         public int Views { get; set; }
         public List<Message> Children { get; set; } = new();
-        public List<MessageTag> Tags { get; set; } 
+        public List<MessageTag> Tags { get; set; }
+        public List<MessageRating> Ratings { get; set; }
         public List<Report> Reports { get; set; }
         public List<Attachment> Attachments { get; set; }
 
@@ -29,21 +30,40 @@ namespace ringkey.Common.Models.Messages
         public ThreadView GetThreadView() 
         {
             return new ThreadView()
-                {
-                    Author = $"{Author.FirstName} {Author.LastName}",
-                    AuthorId = Author.Id.ToString(),
-                    Content = Content,
-                    Id = Id,
-                    Parent = Parent?.Id.ToString(),
-                    Title = Title,
-                    Created = Created,
-                    Pinned = Pinned,
-                    Guest =  Author.Roles.Any(e => e.Name == "Guest"),
-                    Replies = Children.Count(),
-                    Role = Author.Roles.First().Name,
-                    ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList(),
-                    Webinar = Webinar
-                };
+            {
+                Author = $"{Author.FirstName} {Author.LastName}",
+                AuthorId = Author.Id.ToString(),
+                Content = Content,
+                Id = Id,
+                Parent = Parent?.Id.ToString(),
+                Title = Title,
+                Created = Created,
+                Pinned = Pinned,
+                Guest = Author.Roles.Any(e => e.Name == "Guest"),
+                Replies = Children.Count(),
+                Role = Author.Roles.First().Name,
+                ReplyContent = Children.Take(3).Select(m => m.GetThreadView()).ToList(),
+                Rating = getRatingCount(),
+                Webinar = Webinar
+            };
+        }
+
+        public int getRatingCount() {
+            if (Ratings == null)
+            {
+                return 0;
+            }
+            return (Ratings.Where(m => m.Type == MessageRatingType.liked).Count() - Ratings.Where(m => m.Type == MessageRatingType.disliked).Count());
+        }
+
+        public MessageRatingType getRating(Guid userId)
+        {
+            if (Ratings.Where(m => m.Id == userId).FirstOrDefault() == null)
+            {
+                return MessageRatingType.neutral;
+            }
+            return Ratings.Where(m=> m.Id == userId).FirstOrDefault().Type;
+
         }
 
         // Displayed in thread as replies

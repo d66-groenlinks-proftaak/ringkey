@@ -241,7 +241,6 @@ namespace ringkey.Logic
             if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
             else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
 
-            
             switch (sort)
             {
                 case MessageSortType.Top:
