@@ -58,13 +58,14 @@ namespace ringkey.Logic.Hubs
                 Account account = (Account) Context.Items["account"];
                 Account newAccount = _unitOfWork.Account.GetById(account.Id.ToString());
 
-                Report report = new Report()
+                Report report = new Report()    
                 {
                     Account = newAccount,
                     Id = Guid.NewGuid(),
                     Message = _unitOfWork.Message.GetById(newReport.MessageId),
                     ReportMessage = newReport.ReportMessage
                 };
+                report.Message.Type = MessageType.PossibleSpam;
                 _unitOfWork.Report.Add(report);
                 _unitOfWork.SaveChanges();
                 await Clients.Caller.ConfirmReport(true);
