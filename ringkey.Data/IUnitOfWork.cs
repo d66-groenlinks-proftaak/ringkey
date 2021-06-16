@@ -18,5 +18,6 @@ namespace ringkey.Data
         IRoleRepository Role { get; }
         IPermissionRepository Permission { get; }
         IPollRepository Poll { get; }
+        ICategoryRepository Category { get; }
     }
 }

@@ -28,5 +28,6 @@ namespace ringkey.Logic.Hubs
         Task ConfirmPollCreation(bool success);
         Task ReceiveLatestPoll(PollToSend poll);
         Task ReceivePollResults(PollResults results);
+        Task SendCategories(List<Category> categories);
     }
 }

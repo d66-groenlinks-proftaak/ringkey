@@ -226,7 +226,7 @@ namespace ringkey.Logic
             bool all = tag.ToLower() == "alle berichten";
 
             List<Message> messages = new List<Message>();
-
+          
             if (tag.ToLower() == "alle berichten") messages = _unitOfWork.Message.GetLatest(amount);
             else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
 
@@ -246,8 +246,8 @@ namespace ringkey.Logic
                     else messages = _unitOfWork.Message.GetLatestWithTag(tag, amount);
                     break;
             }
-
-
+          
+          
             List<ThreadView> replies = new List<ThreadView>();
             
             foreach(Message msg in messages)
